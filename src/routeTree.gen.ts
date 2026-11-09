@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AjustesRouteImport } from './routes/ajustes'
 import { Route as SemanaRouteImport } from './routes/semana'
+import { Route as TreinoDiaRouteImport } from './routes/treino.$dia'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const SemanaRoute = SemanaRouteImport.update({
   path: '/semana',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TreinoDiaRoute = TreinoDiaRouteImport.update({
+  id: '/treino/$dia',
+  path: '/treino/$dia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/semana': typeof SemanaRoute
+  '/treino/$dia': typeof TreinoDiaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/semana': typeof SemanaRoute
+  '/treino/$dia': typeof TreinoDiaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/semana': typeof SemanaRoute
+  '/treino/$dia': typeof TreinoDiaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ajustes' | '/semana'
+  fullPaths: '/' | '/ajustes' | '/semana' | '/treino/$dia'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ajustes' | '/semana'
-  id: '__root__' | '/' | '/ajustes' | '/semana'
+  to: '/' | '/ajustes' | '/semana' | '/treino/$dia'
+  id: '__root__' | '/' | '/ajustes' | '/semana' | '/treino/$dia'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AjustesRoute: typeof AjustesRoute
   SemanaRoute: typeof SemanaRoute
+  TreinoDiaRoute: typeof TreinoDiaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SemanaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/treino/$dia': {
+      id: '/treino/$dia'
+      path: '/treino/$dia'
+      fullPath: '/treino/$dia'
+      preLoaderRoute: typeof TreinoDiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjustesRoute: AjustesRoute,
   SemanaRoute: SemanaRoute,
+  TreinoDiaRoute: TreinoDiaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
