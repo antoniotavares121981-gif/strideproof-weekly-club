@@ -28,3 +28,10 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Student data (photo, name, submissions) lives in browser localStorage via `src/lib/armazenamento.ts`; no backend yet, so keep reads in effects to avoid SSR hydration mismatches.
+- Weekly plan is static in `src/lib/plano.ts`; the robot judges against it, so plan changes need no other code edits.
+- Photo checking runs server-side in `src/lib/robo.server.ts` (AI Gateway, Responses API, strict JSON schema); browser code only calls `conferirTreino`.
+- Correction/message rules are pure functions in `src/lib/envios.ts`, covered by `src/test/envios.test.ts`.
+- Professor notification is a `wa.me` link built client-side; automatic WhatsApp would need the WhatsApp connector plus a webhook inbox.
