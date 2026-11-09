@@ -99,7 +99,7 @@ export function montarMensagem(args: {
   const { nomeAluno, diaNome, data, meta, envio } = args;
   const cabecalho = [
     `*CIRCUITO JAUA* - ${diaNome} (${data})`,
-    `Aluno: *${nomeAluno || "Aluno"}*`,
+    `Aluno: *${textoSimples(nomeAluno) || "Aluno"}*`,
     `Treino: ${meta.titulo} - ${meta.km} km | ${meta.tempo} | pace ${meta.pace} | FC ate ${meta.fcMax}`,
     "",
   ];
