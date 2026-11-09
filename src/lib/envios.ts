@@ -105,13 +105,12 @@ export function montarMensagem(args: {
   return [...cabecalho, blocoTentativa(envio.antes)].join("\n");
 }
 
-/** WhatsApp do professor que já vem no app. O aluno pode trocar em Ajustes. */
+/** WhatsApp fixo do professor. O botão sempre abre esse número; o aluno não troca. */
 export const PROFESSOR_PADRAO = "71 99676-9048";
 
-/** Número que vale: o que o aluno guardou, ou o do professor se estiver vazio. */
-export function numeroDoProfessor(guardado: string | null | undefined): string {
-  const n = (guardado ?? "").trim();
-  return n || PROFESSOR_PADRAO;
+/** Link do botão "Mandar pro professor": sempre o WhatsApp do professor. */
+export function linkProfessor(texto: string): string {
+  return linkWhatsApp(PROFESSOR_PADRAO, texto);
 }
 
 /** Só os números, com 55 na frente quando o aluno digita só DDD + número. */

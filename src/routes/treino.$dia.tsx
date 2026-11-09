@@ -13,11 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { CHAVES, useEnvio, useGuardado } from "@/lib/armazenamento";
 import {
   DADOS_VAZIOS,
-  PROFESSOR_PADRAO,
   SENTIMENTOS,
-  linkWhatsApp,
+  linkProfessor,
   montarMensagem,
-  numeroDoProfessor,
   podeCorrigir,
   type Dados,
   type EnvioDia,
@@ -63,8 +61,6 @@ function Treino() {
 
   const [envio, setEnvio, envioOk] = useEnvio(semana, dia.id);
   const [nomeAluno] = useGuardado<string>(CHAVES.nome, "Luiz");
-  const [numeroGuardado] = useGuardado<string>(CHAVES.professor, PROFESSOR_PADRAO);
-  const numeroProf = numeroDoProfessor(numeroGuardado);
 
   const [dados, setDados] = useState<Dados>(DADOS_VAZIOS);
   const [foto, setFoto] = useState<string | null>(null);
@@ -284,7 +280,7 @@ function Treino() {
         {envio && !corrigindo && estado.tipo !== "conferindo" ? (
           <div className="space-y-3">
             <Button asChild variant="whatsapp" size="xl">
-              <a href={linkWhatsApp(numeroProf, mensagem)} target="_blank" rel="noreferrer">
+              <a href={linkProfessor(mensagem)} target="_blank" rel="noreferrer">
                 <Send className="h-6 w-6" />
                 {envio.depois ? "AVISAR PROFESSOR (ANTES E DEPOIS)" : "MANDAR PRO PROFESSOR"}
               </a>
