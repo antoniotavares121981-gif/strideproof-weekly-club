@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { linkWhatsApp, montarMensagem, podeCorrigir, type EnvioDia, type Tentativa } from "@/lib/envios";
+import { linkWhatsApp, montarMensagem, numeroDoProfessor, podeCorrigir, type EnvioDia, type Tentativa } from "@/lib/envios";
 import { DIAS } from "@/lib/plano";
 
 function tentativa(veredito: "CERTO" | "ERRADO", km: string): Tentativa {
@@ -45,6 +45,10 @@ describe("mensagem pro professor", () => {
   it("sem correção não fala em antes e depois", () => {
     const msg = montarMensagem({ nomeAluno: "Luiz", diaNome: "Segunda", data: "09/11", meta, envio: { antes: tentativa("CERTO", "6") } });
     expect(msg).not.toContain("ANTES");
+  });
+
+  it("sem número guardado, vai pro WhatsApp do professor 71 99676-9048", () => {
+    expect(linkWhatsApp(numeroDoProfessor(""), "oi")).toBe("https://wa.me/5571996769048?text=oi");
   });
 
   it("manda pro número do professor com 55 na frente", () => {
