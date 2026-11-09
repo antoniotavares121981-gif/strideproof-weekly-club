@@ -13,9 +13,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { CHAVES, useEnvio, useGuardado } from "@/lib/armazenamento";
 import {
   DADOS_VAZIOS,
+  PROFESSOR_PADRAO,
   SENTIMENTOS,
   linkWhatsApp,
   montarMensagem,
+  numeroDoProfessor,
   podeCorrigir,
   type Dados,
   type EnvioDia,
@@ -61,7 +63,8 @@ function Treino() {
 
   const [envio, setEnvio, envioOk] = useEnvio(semana, dia.id);
   const [nomeAluno] = useGuardado<string>(CHAVES.nome, "Luiz");
-  const [numeroProf] = useGuardado<string>(CHAVES.professor, "");
+  const [numeroGuardado] = useGuardado<string>(CHAVES.professor, PROFESSOR_PADRAO);
+  const numeroProf = numeroDoProfessor(numeroGuardado);
 
   const [dados, setDados] = useState<Dados>(DADOS_VAZIOS);
   const [foto, setFoto] = useState<string | null>(null);
@@ -296,11 +299,6 @@ function Treino() {
             ) : null}
             {envio.depois ? (
               <p className="text-center text-sm text-muted-foreground">Tu já usou a tua correção.</p>
-            ) : null}
-            {!numeroProf ? (
-              <p className="text-center text-sm text-muted-foreground">
-                Dica: coloca o WhatsApp do professor em Ajustes pra ir direto pra ele.
-              </p>
             ) : null}
           </div>
         ) : null}

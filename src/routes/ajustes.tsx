@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CHAVES, useGuardado } from "@/lib/armazenamento";
-import { limparNumero } from "@/lib/envios";
+import { PROFESSOR_PADRAO, limparNumero, numeroDoProfessor } from "@/lib/envios";
 
 export const Route = createFileRoute("/ajustes")({
   head: () => ({
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/ajustes")({
 function Ajustes() {
   const navigate = useNavigate();
   const [nome, setNome, nomeOk] = useGuardado<string>(CHAVES.nome, "Luiz");
-  const [prof, setProf, profOk] = useGuardado<string>(CHAVES.professor, "");
+  const [prof, setProf, profOk] = useGuardado<string>(CHAVES.professor, PROFESSOR_PADRAO);
   const [nomeTmp, setNomeTmp] = useState("");
   const [profTmp, setProfTmp] = useState("");
 
@@ -34,7 +34,7 @@ function Ajustes() {
     if (nomeOk) setNomeTmp(nome);
   }, [nomeOk, nome]);
   useEffect(() => {
-    if (profOk) setProfTmp(prof);
+    if (profOk) setProfTmp(numeroDoProfessor(prof));
   }, [profOk, prof]);
 
   function salvar(e: React.FormEvent) {
