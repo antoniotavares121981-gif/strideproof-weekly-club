@@ -91,7 +91,7 @@ function CartaoDia({ dia, hoje }: { dia: Dia; hoje: Date | null }) {
   );
 }
 
-function StatusDia({ veredito }: { veredito?: "CERTO" | "ERRADO" }) {
+function StatusDia({ veredito }: { veredito: "CERTO" | "ERRADO" | undefined }) {
   if (veredito === "CERTO")
     return <CheckCircle2 aria-label="Certo" className="h-7 w-7 shrink-0 text-success" />;
   if (veredito === "ERRADO")

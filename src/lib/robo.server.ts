@@ -62,7 +62,7 @@ Sua tarefa:
 export type RespostaRobo = { ok: true; resultado: Resultado } | { ok: false; erro: string };
 
 export async function conferirComRobo(meta: Meta, dados: Dados, foto: string): Promise<RespostaRobo> {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return { ok: false, erro: "O robô está sem configuração. Avisa o professor." };
 
   const provider = createOpenAI({

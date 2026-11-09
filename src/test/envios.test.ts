@@ -32,7 +32,7 @@ describe("correção do treino", () => {
 });
 
 describe("mensagem pro professor", () => {
-  const meta = DIAS[0].meta;
+  const meta = DIAS[0]!.meta;
 
   it("depois da correção mostra o ANTES e o DEPOIS", () => {
     const envio: EnvioDia = { antes: tentativa("ERRADO", "8"), depois: tentativa("CERTO", "6") };

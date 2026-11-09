@@ -7,7 +7,7 @@ type Estado =
   | { tipo: "esperando" }
   | { tipo: "conferindo"; foto: string }
   | { tipo: "erro"; mensagem: string }
-  | { tipo: "pronto"; antes: Tentativa; depois?: Tentativa };
+  | { tipo: "pronto"; antes: Tentativa; depois?: Tentativa | undefined };
 
 export function Robozinho({ estado }: { estado: Estado }) {
   return (
