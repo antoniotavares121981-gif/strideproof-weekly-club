@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { linkProfessor, linkWhatsApp, montarMensagem, podeCorrigir, type EnvioDia, type Tentativa } from "@/lib/envios";
+import { linkProfessor, montarMensagem, podeCorrigir, type EnvioDia, type Tentativa } from "@/lib/envios";
 import { DIAS } from "@/lib/plano";
 
 function tentativa(veredito: "CERTO" | "ERRADO", km: string): Tentativa {
@@ -51,7 +51,15 @@ describe("mensagem pro professor", () => {
     expect(linkProfessor("oi")).toBe("https://wa.me/5571996769048?text=oi");
   });
 
-  it("manda pro número do professor com 55 na frente", () => {
-    expect(linkWhatsApp("71 99999-9999", "oi")).toBe("https://wa.me/5571999999999?text=oi");
+  it("a mensagem pro professor não tem emoji nem acento", () => {
+    const envio: EnvioDia = { antes: tentativa("ERRADO", "8"), depois: tentativa("CERTO", "6") };
+    const msg = montarMensagem({ nomeAluno: "João 🔥", diaNome: "Sábado", data: "14/11", meta, envio });
+    expect(msg).toMatch(/^[\x20-\x7E\n]+$/);
+    expect(msg).toContain("Aluno: *Joao*");
+    expect(msg).toContain("Sabado");
+  });
+
+  it("o link sai só com letras e números simples", () => {
+    expect(linkProfessor("Treino ✅ certo")).toBe("https://wa.me/5571996769048?text=Treino%20certo");
   });
 });
