@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { linkWhatsApp, montarMensagem, numeroDoProfessor, podeCorrigir, type EnvioDia, type Tentativa } from "@/lib/envios";
+import { linkProfessor, linkWhatsApp, montarMensagem, podeCorrigir, type EnvioDia, type Tentativa } from "@/lib/envios";
 import { DIAS } from "@/lib/plano";
 
 function tentativa(veredito: "CERTO" | "ERRADO", km: string): Tentativa {
@@ -47,8 +47,8 @@ describe("mensagem pro professor", () => {
     expect(msg).not.toContain("ANTES");
   });
 
-  it("sem número guardado, vai pro WhatsApp do professor 71 99676-9048", () => {
-    expect(linkWhatsApp(numeroDoProfessor(""), "oi")).toBe("https://wa.me/5571996769048?text=oi");
+  it("o botão sempre abre o WhatsApp do professor 71 99676-9048", () => {
+    expect(linkProfessor("oi")).toBe("https://wa.me/5571996769048?text=oi");
   });
 
   it("manda pro número do professor com 55 na frente", () => {
