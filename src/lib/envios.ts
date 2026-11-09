@@ -57,21 +57,36 @@ export function podeCorrigir(envio: EnvioDia | null | undefined): boolean {
 
 export function sentimentoTexto(id: string): string {
   const s = SENTIMENTOS.find((x) => x.id === id);
-  return s ? `${s.emoji} ${s.texto}` : "—";
+  return s ? s.texto : "-";
 }
 
-const marca = (v: Veredito) => (v === "CERTO" ? "CERTO ✅" : "ERRADO ❌");
+const marca = (v: Veredito) => (v === "CERTO" ? "CERTO" : "ERRADO");
 
 function blocoTentativa(t: Tentativa): string {
   const d = t.dados;
   const linhas = [
-    `Km: ${d.km || "—"} | Tempo: ${d.tempo || "—"} | Pace: ${d.pace || "—"} | FC: ${d.fc || "—"}`,
-    `Como se sentiu: ${sentimentoTexto(d.sentiu)}${d.comentario ? ` — "${d.comentario}"` : ""}`,
-    `🤖 Robô: ${marca(t.resultado.veredito)}`,
-    ...t.resultado.itens.map((i) => `• ${i.campo}: ${marca(i.status)}${i.status === "ERRADO" ? ` (${i.motivo})` : ""}`),
+    `Km: ${d.km || "-"} | Tempo: ${d.tempo || "-"} | Pace: ${d.pace || "-"} | FC: ${d.fc || "-"}`,
+    `Como se sentiu: ${sentimentoTexto(d.sentiu)}${d.comentario ? ` - "${d.comentario}"` : ""}`,
+    `Robo: ${marca(t.resultado.veredito)}`,
+    ...t.resultado.itens.map((i) => `- ${i.campo}: ${marca(i.status)}${i.status === "ERRADO" ? ` (${i.motivo})` : ""}`),
   ];
-  if (!t.resultado.fotoValida) linhas.push("⚠️ A foto não parece do relógio/Strava.");
+  if (!t.resultado.fotoValida) linhas.push("Atencao: a foto nao parece do relogio/Strava.");
   return linhas.join("\n");
+}
+
+/** Deixa só letras, números e sinais simples (sem emoji e sem acento), pra abrir liso no WhatsApp. */
+export function textoSimples(texto: string): string {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\u2013\u2014\u2022]/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/[^\x20-\x7E\n]/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/ +\n/g, "\n")
+    .replace(/\n +/g, "\n")
+    .trim();
 }
 
 export function montarMensagem(args: {
@@ -83,45 +98,37 @@ export function montarMensagem(args: {
 }): string {
   const { nomeAluno, diaNome, data, meta, envio } = args;
   const cabecalho = [
-    `🏃 *CIRCUITO JAUA* — ${diaNome} (${data})`,
+    `*CIRCUITO JAUA* - ${diaNome} (${data})`,
     `Aluno: *${nomeAluno || "Aluno"}*`,
-    `Treino: ${meta.titulo} — ${meta.km} km | ${meta.tempo} | pace ${meta.pace} | FC até ${meta.fcMax}`,
+    `Treino: ${meta.titulo} - ${meta.km} km | ${meta.tempo} | pace ${meta.pace} | FC ate ${meta.fcMax}`,
     "",
   ];
 
   if (envio.depois) {
-    return [
-      ...cabecalho,
-      "✏️ *O aluno CORRIGIU o treino*",
-      "",
-      "*ANTES:*",
-      blocoTentativa(envio.antes),
-      "",
-      "*DEPOIS:*",
-      blocoTentativa(envio.depois),
-    ].join("\n");
+    return textoSimples(
+      [
+        ...cabecalho,
+        "*O aluno CORRIGIU o treino*",
+        "",
+        "*ANTES:*",
+        blocoTentativa(envio.antes),
+        "",
+        "*DEPOIS:*",
+        blocoTentativa(envio.depois),
+      ].join("\n"),
+    );
   }
 
-  return [...cabecalho, blocoTentativa(envio.antes)].join("\n");
+  return textoSimples([...cabecalho, blocoTentativa(envio.antes)].join("\n"));
 }
 
 /** WhatsApp fixo do professor. O botão sempre abre esse número; o aluno não troca. */
 export const PROFESSOR_PADRAO = "71 99676-9048";
 
-/** Link do botão "Mandar pro professor": sempre o WhatsApp do professor. */
+/** Começo fixo do link do professor. */
+export const LINK_PROFESSOR = "https://wa.me/5571996769048?text=";
+
+/** Link do botão "Mandar pro professor": sempre o WhatsApp do professor, com texto simples. */
 export function linkProfessor(texto: string): string {
-  return linkWhatsApp(PROFESSOR_PADRAO, texto);
-}
-
-/** Só os números, com 55 na frente quando o aluno digita só DDD + número. */
-export function limparNumero(numero: string): string {
-  const digitos = numero.replace(/\D/g, "");
-  if (!digitos) return "";
-  if ((digitos.length === 10 || digitos.length === 11) && !digitos.startsWith("55")) return `55${digitos}`;
-  return digitos;
-}
-
-export function linkWhatsApp(numero: string, texto: string): string {
-  const n = limparNumero(numero);
-  return `https://wa.me/${n}?text=${encodeURIComponent(texto)}`;
+  return LINK_PROFESSOR + encodeURIComponent(textoSimples(texto));
 }
