@@ -1,15 +1,12 @@
 import type { Meta } from "./plano";
 
 export type Veredito = "CERTO" | "ERRADO";
-export type Campo = "Km" | "Tempo" | "Pace" | "FC";
+export type Campo = "Km" | "Tempo" | "Pace";
 
 export type Dados = {
   km: string;
   tempo: string;
   pace: string;
-  fc: string;
-  sentiu: string;
-  comentario: string;
 };
 
 export type ItemConferido = {
@@ -38,15 +35,7 @@ export type EnvioDia = {
   depois?: Tentativa;
 };
 
-export const SENTIMENTOS = [
-  { id: "otimo", emoji: "🔥", texto: "Voando" },
-  { id: "bem", emoji: "😄", texto: "Bem" },
-  { id: "normal", emoji: "🙂", texto: "Normal" },
-  { id: "cansado", emoji: "😮‍💨", texto: "Cansado" },
-  { id: "dor", emoji: "🤕", texto: "Com dor" },
-] as const;
-
-export const DADOS_VAZIOS: Dados = { km: "", tempo: "", pace: "", fc: "", sentiu: "", comentario: "" };
+export const DADOS_VAZIOS: Dados = { km: "", tempo: "", pace: "" };
 
 /** O aluno só pode corrigir 1 vez, e só quando o robô disse ERRADO. */
 export function podeCorrigir(envio: EnvioDia | null | undefined): boolean {
@@ -55,18 +44,12 @@ export function podeCorrigir(envio: EnvioDia | null | undefined): boolean {
   return envio.antes.resultado.veredito === "ERRADO";
 }
 
-export function sentimentoTexto(id: string): string {
-  const s = SENTIMENTOS.find((x) => x.id === id);
-  return s ? s.texto : "-";
-}
-
 const marca = (v: Veredito) => (v === "CERTO" ? "CERTO" : "ERRADO");
 
 function blocoTentativa(t: Tentativa): string {
   const d = t.dados;
   const linhas = [
-    `Km: ${d.km || "-"} | Tempo: ${d.tempo || "-"} | Pace: ${d.pace || "-"} | FC: ${d.fc || "-"}`,
-    `Como se sentiu: ${sentimentoTexto(d.sentiu)}${d.comentario ? ` - "${d.comentario}"` : ""}`,
+    `Km: ${d.km || "-"} | Tempo: ${d.tempo || "-"} | Pace: ${d.pace || "-"}`,
     `Robo: ${marca(t.resultado.veredito)}`,
     ...t.resultado.itens.map((i) => `- ${i.campo}: ${marca(i.status)}${i.status === "ERRADO" ? ` (${i.motivo})` : ""}`),
   ];
@@ -100,7 +83,7 @@ export function montarMensagem(args: {
   const cabecalho = [
     `*CIRCUITO JAUA* - ${diaNome} (${data})`,
     `Aluno: *${textoSimples(nomeAluno) || "Aluno"}*`,
-    `Treino: ${meta.titulo} - ${meta.km} km | ${meta.tempo} | pace ${meta.pace} | FC ate ${meta.fcMax}`,
+    `Treino: ${meta.titulo} - ${meta.km} km | ${meta.tempo} | pace ${meta.pace}`,
     "",
   ];
 

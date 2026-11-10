@@ -7,7 +7,6 @@ export type Meta = {
   km: number;
   tempo: string; // h:mm:ss ou mm:ss
   pace: string; // mm:ss por km
-  fcMax: number; // batimentos por minuto
   dica: string;
 };
 
@@ -18,43 +17,43 @@ export const DIAS: Dia[] = [
     id: "segunda",
     nome: "Segunda",
     curto: "SEG",
-    meta: { titulo: "Rodagem leve", km: 6, tempo: "36:00", pace: "6:00", fcMax: 150, dica: "Ritmo de conversa, sem forçar." },
+    meta: { titulo: "Rodagem leve", km: 6, tempo: "36:00", pace: "6:00", dica: "Ritmo de conversa, sem forçar." },
   },
   {
     id: "terca",
     nome: "Terça",
     curto: "TER",
-    meta: { titulo: "Intervalado", km: 8, tempo: "44:00", pace: "5:30", fcMax: 168, dica: "6 tiros de 800 m com 2 min de trote." },
+    meta: { titulo: "Intervalado", km: 8, tempo: "44:00", pace: "5:30", dica: "6 tiros de 800 m com 2 min de trote." },
   },
   {
     id: "quarta",
     nome: "Quarta",
     curto: "QUA",
-    meta: { titulo: "Regenerativo", km: 5, tempo: "32:30", pace: "6:30", fcMax: 140, dica: "Bem tranquilo, só soltar as pernas." },
+    meta: { titulo: "Regenerativo", km: 5, tempo: "32:30", pace: "6:30", dica: "Bem tranquilo, só soltar as pernas." },
   },
   {
     id: "quinta",
     nome: "Quinta",
     curto: "QUI",
-    meta: { titulo: "Ritmo forte", km: 7, tempo: "38:30", pace: "5:30", fcMax: 165, dica: "Segura o pace do começo ao fim." },
+    meta: { titulo: "Ritmo forte", km: 7, tempo: "38:30", pace: "5:30", dica: "Segura o pace do começo ao fim." },
   },
   {
     id: "sexta",
     nome: "Sexta",
     curto: "SEX",
-    meta: { titulo: "Trote + educativos", km: 4, tempo: "26:00", pace: "6:30", fcMax: 145, dica: "Trote leve e 10 min de educativos." },
+    meta: { titulo: "Trote + educativos", km: 4, tempo: "26:00", pace: "6:30", dica: "Trote leve e 10 min de educativos." },
   },
   {
     id: "sabado",
     nome: "Sábado",
     curto: "SÁB",
-    meta: { titulo: "Longão", km: 12, tempo: "1:18:00", pace: "6:30", fcMax: 155, dica: "Hidrata a cada 4 km." },
+    meta: { titulo: "Longão", km: 12, tempo: "1:18:00", pace: "6:30", dica: "Hidrata a cada 4 km." },
   },
   {
     id: "domingo",
     nome: "Domingo",
     curto: "DOM",
-    meta: { titulo: "Leve na praia", km: 5, tempo: "32:30", pace: "6:30", fcMax: 145, dica: "Areia firme, perto da água." },
+    meta: { titulo: "Leve na praia", km: 5, tempo: "32:30", pace: "6:30", dica: "Areia firme, perto da água." },
   },
 ];
 

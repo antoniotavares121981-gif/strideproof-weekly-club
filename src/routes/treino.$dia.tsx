@@ -9,11 +9,9 @@ import { TopoPagina } from "@/components/TopoPagina";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { CHAVES, useEnvio, useGuardado } from "@/lib/armazenamento";
 import {
   DADOS_VAZIOS,
-  SENTIMENTOS,
   linkProfessor,
   montarMensagem,
   podeCorrigir,
@@ -105,10 +103,6 @@ function Treino() {
       toast.error("Preenche Km, Tempo e Pace.");
       return;
     }
-    if (!dados.sentiu) {
-      toast.error("Diz como tu se sentiu.");
-      return;
-    }
     if (!foto) {
       toast.error("Falta a foto do relógio ou do Strava.");
       return;
@@ -175,11 +169,10 @@ function Treino() {
 
       <section className="mx-5 rounded-3xl bg-sunset p-5 text-primary-foreground shadow-glow">
         <p className="font-display text-lg opacity-80">TREINO DO PROFESSOR</p>
-        <div className="mt-2 grid grid-cols-4 gap-2 text-center">
+        <div className="mt-2 grid grid-cols-3 gap-2 text-center">
           <Meta rotulo="KM" valor={String(dia.meta.km)} />
           <Meta rotulo="TEMPO" valor={dia.meta.tempo} />
           <Meta rotulo="PACE" valor={dia.meta.pace} />
-          <Meta rotulo="FC ATÉ" valor={String(dia.meta.fcMax)} />
         </div>
         <p className="mt-3 text-sm font-semibold">{dia.meta.dica}</p>
       </section>
@@ -192,42 +185,12 @@ function Treino() {
             </p>
           ) : null}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Campo id="km" rotulo="Km" placeholder="6,2" modo="decimal" valor={dados.km} onChange={(v) => mudar("km", v)} />
             <Campo id="tempo" rotulo="Tempo" placeholder="36:10" modo="text" valor={dados.tempo} onChange={(v) => mudar("tempo", v)} />
-            <Campo id="pace" rotulo="Pace (min/km)" placeholder="5:50" modo="text" valor={dados.pace} onChange={(v) => mudar("pace", v)} />
-            <Campo id="fc" rotulo="FC média" placeholder="148" modo="numeric" valor={dados.fc} onChange={(v) => mudar("fc", v)} />
+            <Campo id="pace" rotulo="Pace" placeholder="5:50" modo="text" valor={dados.pace} onChange={(v) => mudar("pace", v)} />
           </div>
 
-          <fieldset className="space-y-2">
-            <legend className="mb-2 text-base font-semibold">Como tu se sentiu?</legend>
-            <div className="grid grid-cols-5 gap-2">
-              {SENTIMENTOS.map((s) => {
-                const ativo = dados.sentiu === s.id;
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    aria-pressed={ativo}
-                    onClick={() => mudar("sentiu", s.id)}
-                    className={`flex flex-col items-center gap-1 rounded-2xl border py-2 text-xs font-semibold transition-colors ${
-                      ativo ? "border-primary bg-primary text-primary-foreground" : "border-border bg-secondary text-secondary-foreground"
-                    }`}
-                  >
-                    <span className="text-2xl">{s.emoji}</span>
-                    {s.texto}
-                  </button>
-                );
-              })}
-            </div>
-            <Textarea
-              aria-label="Comentário"
-              placeholder="Quer contar mais alguma coisa? (opcional)"
-              value={dados.comentario}
-              onChange={(e) => mudar("comentario", e.target.value.slice(0, 500))}
-              className="text-base"
-            />
-          </fieldset>
 
           <div>
             <p className="mb-2 text-base font-semibold">Foto do relógio / Strava</p>

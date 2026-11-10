@@ -5,7 +5,7 @@ import { DIAS } from "@/lib/plano";
 
 function tentativa(veredito: "CERTO" | "ERRADO", km: string): Tentativa {
   return {
-    dados: { km, tempo: "36:00", pace: "6:00", fc: "148", sentiu: "bem", comentario: "" },
+    dados: { km, tempo: "36:00", pace: "6:00" },
     foto: "data:image/jpeg;base64,AAAA",
     resultado: {
       veredito,
@@ -61,5 +61,12 @@ describe("mensagem pro professor", () => {
 
   it("o link sai só com letras e números simples", () => {
     expect(linkProfessor("Treino ✅ certo")).toBe("https://wa.me/5571996769048?text=Treino%20certo");
+  });
+
+  it("a mensagem só leva Km, Tempo e Pace, sem FC e sem como se sentiu", () => {
+    const msg = montarMensagem({ nomeAluno: "Luiz", diaNome: "Segunda", data: "09/11", meta, envio: { antes: tentativa("CERTO", "6") } });
+    expect(msg).toContain("Km: 6 | Tempo: 36:00 | Pace: 6:00");
+    expect(msg).not.toContain("FC");
+    expect(msg).not.toContain("sentiu");
   });
 });
