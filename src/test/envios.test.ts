@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { avaliarHermes, linkAluno, linkProfessor, mensagemTreinoSemana, numeroWhatsApp, paraSegundos } from "@/lib/envios";
 import { DIAS, resumoMeta } from "@/lib/plano";
 
-const seg = DIAS[0].meta;
+const seg = DIAS[0]!.meta;
 
 describe("regras", () => {
   it("professor sempre 71 99676-9048", () => {

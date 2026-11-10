@@ -32,9 +32,9 @@ function Alunos() {
   function cadastrar(e: React.FormEvent) {
     e.preventDefault();
     const n = nome.trim().slice(0, 50);
-    if (!n) return toast.error("Coloque o nome do aluno.");
-    if (!numeroValido(zap)) return toast.error("Número inválido. Ex.: 71 98888-7777");
-    if (!setAlunos([...alunos, { id: crypto.randomUUID(), nome: n, whatsapp: zap.trim() }])) return toast.error("Não deu pra salvar.");
+    if (!n) { toast.error("Coloque o nome do aluno."); return; }
+    if (!numeroValido(zap)) { toast.error("Número inválido. Ex.: 71 98888-7777"); return; }
+    if (!setAlunos([...alunos, { id: crypto.randomUUID(), nome: n, whatsapp: zap.trim() }])) { toast.error("Não deu pra salvar."); return; }
     setNome("");
     setZap("");
     toast.success("Aluno cadastrado!");

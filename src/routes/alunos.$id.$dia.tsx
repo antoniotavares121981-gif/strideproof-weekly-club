@@ -49,8 +49,8 @@ function Detalhe() {
 
   function salvar(e: React.FormEvent) {
     e.preventDefault();
-    if (!f.km || !f.tempo) return toast.error("Preencha Km e Tempo.");
-    if (!setRegistro({ ...f, em: new Date().toISOString() })) return toast.error("Não deu pra salvar.");
+    if (!f.km || !f.tempo) { toast.error("Preencha Km e Tempo."); return; }
+    if (!setRegistro({ ...f, em: new Date().toISOString() })) { toast.error("Não deu pra salvar."); return; }
     toast.success("Registro salvo!");
     navigate({ to: "/alunos/$id", params: { id } });
   }
