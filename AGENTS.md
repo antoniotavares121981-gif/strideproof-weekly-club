@@ -30,8 +30,8 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Project rules
-- Student data (photo, name, submissions) lives in browser localStorage via `src/lib/armazenamento.ts`; no backend yet, so keep reads in effects to avoid SSR hydration mismatches.
-- Weekly plan is static in `src/lib/plano.ts`; the robot judges against it, so plan changes need no other code edits.
-- Photo checking ("Boneco Mágico" evaluator) runs server-side in `src/lib/robo.server.ts` (AI Gateway, Responses API, strict JSON schema); browser code only calls `conferirTreino`.
-- Correction/message rules are pure functions in `src/lib/envios.ts`, covered by `src/test/envios.test.ts`.
-- Professor notification is a `wa.me` link built client-side; automatic WhatsApp would need the WhatsApp connector plus a webhook inbox.
+- Students, and each student's weekly records, live in browser localStorage via `src/lib/armazenamento.ts`; no backend yet, so keep reads in effects to avoid SSR hydration mismatches.
+- Weekly plan is static in `src/lib/plano.ts` and shared by all students.
+- Hermes evaluation, WhatsApp links and message text are pure functions in `src/lib/envios.ts`, covered by `src/test/envios.test.ts`.
+- WhatsApp sending is a client-side `wa.me` link (professor number fixed; student number per student).
+- Bottom menu lives in `src/components/MenuBaixo.tsx`, mounted once in `__root.tsx`.

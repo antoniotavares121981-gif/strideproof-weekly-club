@@ -1,20 +1,18 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Camera, Settings } from "lucide-react";
-import { useRef } from "react";
-import { toast } from "sonner";
+import { MessageCircle, Users } from "lucide-react";
 
-import fotoPadrao from "@/assets/aluno-padrao.jpg";
+import hermes from "@/assets/hermes.jpg";
 import { Button } from "@/components/ui/button";
-import { CHAVES, useGuardado } from "@/lib/armazenamento";
-import { reduzirImagem } from "@/lib/imagem";
+import { useAlunos } from "@/lib/armazenamento";
+import { LINK_PROFESSOR, PROFESSOR_PADRAO } from "@/lib/envios";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Circuito Jaua — Meu treino" },
-      { name: "description", content: "Abra o treino da semana do Circuito Jaua e mande pro professor." },
-      { property: "og:title", content: "Circuito Jaua — Meu treino" },
-      { property: "og:description", content: "Abra o treino da semana do Circuito Jaua e mande pro professor." },
+      { title: "Início — GM Assessoria Esportiva" },
+      { name: "description", content: "Treinos de corrida dos alunos da GM Assessoria Esportiva." },
+      { property: "og:title", content: "Início — GM Assessoria Esportiva" },
+      { property: "og:description", content: "Treinos de corrida dos alunos da GM Assessoria Esportiva." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -23,70 +21,24 @@ export const Route = createFileRoute("/")({
 });
 
 function Inicio() {
-  const [foto, setFoto] = useGuardado<string | null>(CHAVES.foto, null);
-  const [nome] = useGuardado<string>(CHAVES.nome, "Luiz");
-  const input = useRef<HTMLInputElement>(null);
-
-  async function trocarFoto(arquivo?: File) {
-    if (!arquivo) return;
-    try {
-      const url = await reduzirImagem(arquivo, 900, 0.85);
-      if (!setFoto(url)) toast.error("Não deu pra guardar a foto. Tenta uma menor.");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Não deu pra trocar a foto.");
-    }
-  }
-
+  const [alunos] = useAlunos();
   return (
-    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col overflow-hidden">
-      <div className="absolute inset-0">
-        <img
-          src={foto ?? fotoPadrao}
-          alt={`Foto do aluno ${nome}`}
-          width={864}
-          height={1152}
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-night-fade" />
+    <main className="mx-auto max-w-md space-y-5 px-5 pt-8">
+      <div>
+        <p className="font-display text-lg text-primary">GM</p>
+        <h1 className="text-5xl leading-none text-foreground">ASSESSORIA ESPORTIVA</h1>
       </div>
-
-      <header className="relative z-10 flex items-center justify-between p-5">
-        <span className="font-display text-2xl text-foreground drop-shadow">
-          CIRCUITO <span className="text-primary">JAUA</span>
-        </span>
-        <Link
-          to="/ajustes"
-          aria-label="Ajustes"
-          className="grid h-11 w-11 place-items-center rounded-full bg-background/60 text-foreground backdrop-blur"
-        >
-          <Settings className="h-5 w-5" />
-        </Link>
-      </header>
-
-      <div className="relative z-10 mt-auto space-y-5 p-5 pb-10">
-        <button
-          type="button"
-          onClick={() => input.current?.click()}
-          className="inline-flex items-center gap-2 rounded-full bg-background/60 px-4 py-2 text-sm font-semibold text-foreground backdrop-blur"
-        >
-          <Camera className="h-4 w-4" /> Trocar minha foto
-        </button>
-        <input
-          ref={input}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => trocarFoto(e.target.files?.[0])}
-        />
-
-        <h1 className="text-6xl text-foreground drop-shadow-lg">
-          Bora, <span className="text-primary">{nome || "atleta"}</span>!
-        </h1>
-
-        <Button asChild variant="hero" size="xl">
-          <Link to="/semana">VER TREINO DA SEMANA</Link>
-        </Button>
+      <div className="flex items-center gap-4 rounded-2xl bg-secondary p-4">
+        <img src={hermes} alt="Hermes, treinador" width={816} height={816} className="h-20 w-20 rounded-xl object-cover object-top" />
+        <p className="text-sm text-secondary-foreground">Cadastre seus alunos, acompanhe os treinos e receba a avaliação do Hermes.</p>
       </div>
+      <Button asChild variant="hero" size="xl">
+        <Link to="/alunos"><Users className="h-6 w-6" /> MEUS ALUNOS ({alunos.length})</Link>
+      </Button>
+      <a href={LINK_PROFESSOR + "Ola"} target="_blank" rel="noreferrer" className="block rounded-2xl bg-paper p-4 text-paper-foreground">
+        <p className="flex items-center gap-2 text-sm font-bold"><MessageCircle className="h-4 w-4" /> WhatsApp do professor</p>
+        <p className="font-display text-3xl">{PROFESSOR_PADRAO}</p>
+      </a>
     </main>
   );
 }
