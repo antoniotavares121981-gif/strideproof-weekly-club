@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { MenuBaixo } from "@/components/MenuBaixo";
 
 function NotFoundComponent() {
   return (
@@ -82,11 +83,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Circuito Jaua" },
-      { name: "description", content: "Treino da semana, avaliação pelo Boneco Mágico e aviso pro professor no WhatsApp." },
+      { title: "GM Assessoria Esportiva" },
+      { name: "description", content: "Treinos dos alunos, avaliação do Hermes e envio pelo WhatsApp." },
       { name: "theme-color", content: "#141b2e" },
-      { property: "og:title", content: "Circuito Jaua" },
-      { property: "og:description", content: "Treino da semana, avaliação pelo Boneco Mágico e aviso pro professor no WhatsApp." },
+      { property: "og:title", content: "GM Assessoria Esportiva" },
+      { property: "og:description", content: "Treinos dos alunos, avaliação do Hermes e envio pelo WhatsApp." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -130,7 +131,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="pb-20">
+        <Outlet />
+      </div>
+      <MenuBaixo />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
