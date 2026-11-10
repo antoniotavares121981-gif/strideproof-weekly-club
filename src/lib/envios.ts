@@ -56,11 +56,12 @@ export function paraSegundos(t: string): number | null {
   if (m) return Number(m[1]) * 3600 + Number(m[2] ?? 0) * 60;
   m = s.match(/^(\d+)\s*min$/);
   if (m) return Number(m[1]) * 60;
+  const [a = 0, b = 0, c = 0] = s.split(":").map(Number);
   const p = s.split(":").map(Number);
   if (p.some((x) => Number.isNaN(x))) return null;
-  if (p.length === 3) return p[0] * 3600 + p[1] * 60 + p[2];
-  if (p.length === 2) return p[0] * 60 + p[1];
-  if (p.length === 1 && s) return p[0] * 60;
+  if (p.length === 3) return a * 3600 + b * 60 + c;
+  if (p.length === 2) return a * 60 + b;
+  if (p.length === 1 && s) return a * 60;
   return null;
 }
 

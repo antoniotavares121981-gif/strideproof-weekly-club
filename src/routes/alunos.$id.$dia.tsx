@@ -13,7 +13,7 @@ import { acharDia, chaveSemana, resumoMeta } from "@/lib/plano";
 type Busca = { editar?: boolean };
 
 export const Route = createFileRoute("/alunos/$id/$dia")({
-  validateSearch: (s: Record<string, unknown>): Busca => (s.editar === true || s.editar === "true" ? { editar: true } : {}),
+  validateSearch: (s: Record<string, unknown>): Busca => (s["editar"] === true || s["editar"] === "true" ? { editar: true } : {}),
   loader: ({ params }) => {
     const dia = acharDia(params.dia);
     if (!dia) throw notFound();
