@@ -14,6 +14,8 @@ import { Route as AssessoriaRouteImport } from './routes/assessoria'
 import { Route as MaisRouteImport } from './routes/mais'
 import { Route as ProvasRouteImport } from './routes/provas'
 import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
+import { Route as ATokenIndexRouteImport } from './routes/a.$token.index'
+import { Route as ATokenDiaRouteImport } from './routes/a.$token.$dia'
 import { Route as AlunosIdIndexRouteImport } from './routes/alunos.$id.index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +43,16 @@ const AlunosIndexRoute = AlunosIndexRouteImport.update({
   path: '/alunos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ATokenIndexRoute = ATokenIndexRouteImport.update({
+  id: '/a/$token/',
+  path: '/a/$token/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ATokenDiaRoute = ATokenDiaRouteImport.update({
+  id: '/a/$token/$dia',
+  path: '/a/$token/$dia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AlunosIdIndexRoute = AlunosIdIndexRouteImport.update({
   id: '/alunos/$id/',
   path: '/alunos/$id/',
@@ -53,6 +65,8 @@ export interface FileRoutesByFullPath {
   '/mais': typeof MaisRoute
   '/provas': typeof ProvasRoute
   '/alunos/': typeof AlunosIndexRoute
+  '/a/$token/$dia': typeof ATokenDiaRoute
+  '/a/$token/': typeof ATokenIndexRoute
   '/alunos/$id/': typeof AlunosIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +75,8 @@ export interface FileRoutesByTo {
   '/mais': typeof MaisRoute
   '/provas': typeof ProvasRoute
   '/alunos': typeof AlunosIndexRoute
+  '/a/$token/$dia': typeof ATokenDiaRoute
+  '/a/$token': typeof ATokenIndexRoute
   '/alunos/$id': typeof AlunosIdIndexRoute
 }
 export interface FileRoutesById {
@@ -70,14 +86,31 @@ export interface FileRoutesById {
   '/mais': typeof MaisRoute
   '/provas': typeof ProvasRoute
   '/alunos/': typeof AlunosIndexRoute
+  '/a/$token/$dia': typeof ATokenDiaRoute
+  '/a/$token/': typeof ATokenIndexRoute
   '/alunos/$id/': typeof AlunosIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/assessoria' | '/mais' | '/provas' | '/alunos/' | '/alunos/$id/'
+    | '/'
+    | '/assessoria'
+    | '/mais'
+    | '/provas'
+    | '/alunos/'
+    | '/a/$token/$dia'
+    | '/a/$token/'
+    | '/alunos/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/assessoria' | '/mais' | '/provas' | '/alunos' | '/alunos/$id'
+  to:
+    | '/'
+    | '/assessoria'
+    | '/mais'
+    | '/provas'
+    | '/alunos'
+    | '/a/$token/$dia'
+    | '/a/$token'
+    | '/alunos/$id'
   id:
     | '__root__'
     | '/'
@@ -85,6 +118,8 @@ export interface FileRouteTypes {
     | '/mais'
     | '/provas'
     | '/alunos/'
+    | '/a/$token/$dia'
+    | '/a/$token/'
     | '/alunos/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -94,6 +129,8 @@ export interface RootRouteChildren {
   MaisRoute: typeof MaisRoute
   ProvasRoute: typeof ProvasRoute
   AlunosIndexRoute: typeof AlunosIndexRoute
+  ATokenDiaRoute: typeof ATokenDiaRoute
+  ATokenIndexRoute: typeof ATokenIndexRoute
   AlunosIdIndexRoute: typeof AlunosIdIndexRoute
 }
 
@@ -134,6 +171,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlunosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/a/$token/': {
+      id: '/a/$token/'
+      path: '/a/$token'
+      fullPath: '/a/$token/'
+      preLoaderRoute: typeof ATokenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/a/$token/$dia': {
+      id: '/a/$token/$dia'
+      path: '/a/$token/$dia'
+      fullPath: '/a/$token/$dia'
+      preLoaderRoute: typeof ATokenDiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/alunos/$id/': {
       id: '/alunos/$id/'
       path: '/alunos/$id'
@@ -150,6 +201,8 @@ const rootRouteChildren: RootRouteChildren = {
   MaisRoute: MaisRoute,
   ProvasRoute: ProvasRoute,
   AlunosIndexRoute: AlunosIndexRoute,
+  ATokenDiaRoute: ATokenDiaRoute,
+  ATokenIndexRoute: ATokenIndexRoute,
   AlunosIdIndexRoute: AlunosIdIndexRoute,
 }
 export const routeTree = rootRouteImport
