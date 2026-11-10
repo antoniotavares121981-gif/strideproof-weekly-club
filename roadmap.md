@@ -1,0 +1,4 @@
+- [ ] Remove former brand from all screens and messages; show Painel do Professor.
+- [ ] Show student list and individual details; protect SALVAR against repeated taps.
+- [ ] Preserve three-day plans and records; adjust WhatsApp greeting and external opening.
+- [ ] Verify saving and sending with tests and the student view.

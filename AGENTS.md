@@ -35,3 +35,4 @@ use the editor.
 - Hermes evaluation, WhatsApp links and message text are pure functions in `src/lib/envios.ts`, covered by `src/test/envios.test.ts`.
 - WhatsApp sending is a client-side `wa.me` link (professor number fixed; student number per student).
 - Bottom menu lives in `src/components/MenuBaixo.tsx`, mounted once in `__root.tsx`.
+- Reuse the student panel on home and the student-list route so both share registration state and the synchronous submission lock against duplicate taps.

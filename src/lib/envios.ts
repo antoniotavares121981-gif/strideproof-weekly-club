@@ -3,7 +3,7 @@ import { DIAS, km, resumoMeta, type Meta } from "./plano";
 export type Aluno = { id: string; nome: string; whatsapp: string };
 export type Registro = { km: string; tempo: string; pace: string; em: string };
 
-export const NOME_APP = "GM Assessoria Esportiva";
+export const NOME_APP = "Assessoria de Corrida";
 /** WhatsApp fixo do professor. Nunca muda. */
 export const PROFESSOR_PADRAO = "71 99676-9048";
 export const LINK_PROFESSOR = "https://wa.me/5571996769048?text=";
@@ -38,11 +38,11 @@ export function numeroValido(numero: string): boolean {
 }
 
 export function linkAluno(numero: string, texto: string): string {
-  return `https://wa.me/${numeroWhatsApp(numero)}?text=${encodeURIComponent(textoSimples(texto))}`;
+  return `https://wa.me/${numeroWhatsApp(numero)}?text=${encodeURIComponent(texto)}`;
 }
 
 export function mensagemTreinoSemana(nome: string): string {
-  const linhas = [`*${NOME_APP.toUpperCase()}*`, `Ola, ${nome}! Seu treino da semana:`, ""];
+  const linhas = [`Olá, ${nome}! Seu treino da semana chegou!`, ""];
   for (const d of DIAS) linhas.push(`*${d.curto}* - ${d.meta.tipo}: ${resumoMeta(d.meta)}`);
   linhas.push("", `Duvidas: professor ${PROFESSOR_PADRAO}`);
   return textoSimples(linhas.join("\n"));

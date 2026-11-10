@@ -1,4 +1,4 @@
-import { NOME_APP, PROFESSOR_PADRAO, textoSimples } from "./envios";
+import { PROFESSOR_PADRAO } from "./envios";
 
 export type DiaPlano = { dia: string; km: string; pace: string; detalhes: string };
 export type Feito = { id: string; dia_index: number; dia: string; km: string; tempo: string; pace: string; foto: string | null; created_at: string };
@@ -22,8 +22,8 @@ export function resumoDia(d: DiaPlano): string {
 }
 
 export function mensagemEnvioAluno(nome: string, link: string, plano: DiaPlano[]): string {
-  const linhas = [`*${NOME_APP.toUpperCase()}*`, `Ola, ${nome}! Seu treino da semana chegou:`, ""];
+  const linhas = [`Olá, ${nome}! Seu treino da semana chegou!`, ""];
   for (const d of plano) linhas.push(`*${d.dia}* - ${resumoDia(d)}`);
   linhas.push("", "Abra seu treino e registre o que fez:", link, "", `Duvidas: professor ${PROFESSOR_PADRAO}`);
-  return textoSimples(linhas.join("\n"));
+  return linhas.join("\n");
 }
