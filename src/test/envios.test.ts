@@ -69,4 +69,9 @@ describe("mensagem pro professor", () => {
     expect(msg).not.toContain("FC");
     expect(msg).not.toContain("sentiu");
   });
+
+  it("a mensagem pro professor mostra a avaliação do Boneco Mágico", () => {
+    const msg = montarMensagem({ nomeAluno: "Luiz", diaNome: "Segunda", data: "09/11", meta, envio: { antes: tentativa("ERRADO", "8") } });
+    expect(msg).toContain("Boneco Magico: ERRADO");
+  });
 });

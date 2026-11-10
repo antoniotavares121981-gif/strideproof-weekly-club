@@ -14,14 +14,16 @@ export function BonecoMagico({ estado }: { estado: Estado }) {
   return (
     <section aria-label="Boneco Mágico" className="rounded-3xl border border-border bg-card p-5 shadow-card">
       <div className="flex items-center gap-3">
-        <img
-          src={boneco}
-          alt="Boneco Mágico, o treinador"
-          width={1024}
-          height={1024}
-          loading="lazy"
-          className="h-28 w-24 shrink-0 object-cover object-top"
-        />
+        <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-secondary">
+          <img
+            src={boneco}
+            alt="Boneco Mágico, o treinador"
+            width={1024}
+            height={1024}
+            loading="lazy"
+            className="h-full w-full origin-top scale-[1.9] object-cover"
+          />
+        </div>
         <div className="min-w-0">
           <h2 className="text-3xl text-card-foreground">BONECO MÁGICO</h2>
           <p className="text-xs font-bold tracking-wider text-primary">AVALIAÇÃO DO TREINO</p>
