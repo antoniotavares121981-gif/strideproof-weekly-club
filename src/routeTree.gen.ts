@@ -10,63 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AjustesRouteImport } from './routes/ajustes'
-import { Route as SemanaRouteImport } from './routes/semana'
-import { Route as TreinoDiaRouteImport } from './routes/treino.$dia'
+import { Route as AssessoriaRouteImport } from './routes/assessoria'
+import { Route as MaisRouteImport } from './routes/mais'
+import { Route as ProvasRouteImport } from './routes/provas'
+import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
+import { Route as AlunosIdIndexRouteImport } from './routes/alunos.$id.index'
+import { Route as AlunosIdDiaRouteImport } from './routes/alunos.$id.$dia'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AjustesRoute = AjustesRouteImport.update({
-  id: '/ajustes',
-  path: '/ajustes',
+const AssessoriaRoute = AssessoriaRouteImport.update({
+  id: '/assessoria',
+  path: '/assessoria',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SemanaRoute = SemanaRouteImport.update({
-  id: '/semana',
-  path: '/semana',
+const MaisRoute = MaisRouteImport.update({
+  id: '/mais',
+  path: '/mais',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TreinoDiaRoute = TreinoDiaRouteImport.update({
-  id: '/treino/$dia',
-  path: '/treino/$dia',
+const ProvasRoute = ProvasRouteImport.update({
+  id: '/provas',
+  path: '/provas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlunosIndexRoute = AlunosIndexRouteImport.update({
+  id: '/alunos/',
+  path: '/alunos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlunosIdIndexRoute = AlunosIdIndexRouteImport.update({
+  id: '/alunos/$id/',
+  path: '/alunos/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlunosIdDiaRoute = AlunosIdDiaRouteImport.update({
+  id: '/alunos/$id/$dia',
+  path: '/alunos/$id/$dia',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/ajustes': typeof AjustesRoute
-  '/semana': typeof SemanaRoute
-  '/treino/$dia': typeof TreinoDiaRoute
+  '/assessoria': typeof AssessoriaRoute
+  '/mais': typeof MaisRoute
+  '/provas': typeof ProvasRoute
+  '/alunos/': typeof AlunosIndexRoute
+  '/alunos/$id/$dia': typeof AlunosIdDiaRoute
+  '/alunos/$id/': typeof AlunosIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/ajustes': typeof AjustesRoute
-  '/semana': typeof SemanaRoute
-  '/treino/$dia': typeof TreinoDiaRoute
+  '/assessoria': typeof AssessoriaRoute
+  '/mais': typeof MaisRoute
+  '/provas': typeof ProvasRoute
+  '/alunos': typeof AlunosIndexRoute
+  '/alunos/$id/$dia': typeof AlunosIdDiaRoute
+  '/alunos/$id': typeof AlunosIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/ajustes': typeof AjustesRoute
-  '/semana': typeof SemanaRoute
-  '/treino/$dia': typeof TreinoDiaRoute
+  '/assessoria': typeof AssessoriaRoute
+  '/mais': typeof MaisRoute
+  '/provas': typeof ProvasRoute
+  '/alunos/': typeof AlunosIndexRoute
+  '/alunos/$id/$dia': typeof AlunosIdDiaRoute
+  '/alunos/$id/': typeof AlunosIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ajustes' | '/semana' | '/treino/$dia'
+  fullPaths:
+    | '/'
+    | '/assessoria'
+    | '/mais'
+    | '/provas'
+    | '/alunos/'
+    | '/alunos/$id/$dia'
+    | '/alunos/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ajustes' | '/semana' | '/treino/$dia'
-  id: '__root__' | '/' | '/ajustes' | '/semana' | '/treino/$dia'
+  to:
+    | '/'
+    | '/assessoria'
+    | '/mais'
+    | '/provas'
+    | '/alunos'
+    | '/alunos/$id/$dia'
+    | '/alunos/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/assessoria'
+    | '/mais'
+    | '/provas'
+    | '/alunos/'
+    | '/alunos/$id/$dia'
+    | '/alunos/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AjustesRoute: typeof AjustesRoute
-  SemanaRoute: typeof SemanaRoute
-  TreinoDiaRoute: typeof TreinoDiaRoute
+  AssessoriaRoute: typeof AssessoriaRoute
+  MaisRoute: typeof MaisRoute
+  ProvasRoute: typeof ProvasRoute
+  AlunosIndexRoute: typeof AlunosIndexRoute
+  AlunosIdDiaRoute: typeof AlunosIdDiaRoute
+  AlunosIdIndexRoute: typeof AlunosIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,25 +130,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ajustes': {
-      id: '/ajustes'
-      path: '/ajustes'
-      fullPath: '/ajustes'
-      preLoaderRoute: typeof AjustesRouteImport
+    '/assessoria': {
+      id: '/assessoria'
+      path: '/assessoria'
+      fullPath: '/assessoria'
+      preLoaderRoute: typeof AssessoriaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/semana': {
-      id: '/semana'
-      path: '/semana'
-      fullPath: '/semana'
-      preLoaderRoute: typeof SemanaRouteImport
+    '/mais': {
+      id: '/mais'
+      path: '/mais'
+      fullPath: '/mais'
+      preLoaderRoute: typeof MaisRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/treino/$dia': {
-      id: '/treino/$dia'
-      path: '/treino/$dia'
-      fullPath: '/treino/$dia'
-      preLoaderRoute: typeof TreinoDiaRouteImport
+    '/provas': {
+      id: '/provas'
+      path: '/provas'
+      fullPath: '/provas'
+      preLoaderRoute: typeof ProvasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alunos/': {
+      id: '/alunos/'
+      path: '/alunos'
+      fullPath: '/alunos/'
+      preLoaderRoute: typeof AlunosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alunos/$id/': {
+      id: '/alunos/$id/'
+      path: '/alunos/$id'
+      fullPath: '/alunos/$id/'
+      preLoaderRoute: typeof AlunosIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alunos/$id/$dia': {
+      id: '/alunos/$id/$dia'
+      path: '/alunos/$id/$dia'
+      fullPath: '/alunos/$id/$dia'
+      preLoaderRoute: typeof AlunosIdDiaRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -104,9 +177,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AjustesRoute: AjustesRoute,
-  SemanaRoute: SemanaRoute,
-  TreinoDiaRoute: TreinoDiaRoute,
+  AssessoriaRoute: AssessoriaRoute,
+  MaisRoute: MaisRoute,
+  ProvasRoute: ProvasRoute,
+  AlunosIndexRoute: AlunosIndexRoute,
+  AlunosIdDiaRoute: AlunosIdDiaRoute,
+  AlunosIdIndexRoute: AlunosIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
