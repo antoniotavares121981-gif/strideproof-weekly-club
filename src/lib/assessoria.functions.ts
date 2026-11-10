@@ -21,7 +21,7 @@ export const listarAlunos = createServerFn({ method: "GET" }).handler(async () =
 });
 
 export const criarAluno = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ nome: z.string().trim().min(1).max(50), whatsapp: z.string().trim().min(10).max(20), objetivo: z.string().trim().max(120) }).parse(i),
   )
   .handler(async ({ data }) => {
@@ -31,7 +31,7 @@ export const criarAluno = createServerFn({ method: "POST" })
   });
 
 export const apagarAluno = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const { error } = await (await db()).from("alunos").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -39,7 +39,7 @@ export const apagarAluno = createServerFn({ method: "POST" })
   });
 
 export const verAluno = createServerFn({ method: "GET" })
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data }) => {
     const sb = await db();
     const { data: a, error } = await sb.from("alunos").select("*").eq("id", data.id).maybeSingle();
@@ -56,7 +56,7 @@ export const verAluno = createServerFn({ method: "GET" })
   });
 
 export const salvarRascunho = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), plano: z.array(diaSchema).length(3) }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid(), plano: z.array(diaSchema).length(3) }).parse(i))
   .handler(async ({ data }) => {
     const { error } = await (await db()).from("alunos").update({ rascunho: data.plano }).eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -65,7 +65,7 @@ export const salvarRascunho = createServerFn({ method: "POST" })
 
 /** Só aqui o aluno passa a ver o treino. */
 export const enviarPlano = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), plano: z.array(diaSchema).length(3) }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid(), plano: z.array(diaSchema).length(3) }).parse(i))
   .handler(async ({ data }) => {
     const { error } = await (await db())
       .from("alunos")
@@ -80,7 +80,7 @@ export const enviarPlano = createServerFn({ method: "POST" })
 const tokenSchema = z.string().regex(/^[a-f0-9]{24}$/);
 
 export const treinoDoAluno = createServerFn({ method: "GET" })
-  .inputValidator((i: unknown) => z.object({ token: tokenSchema }).parse(i))
+  .validator((i: unknown) => z.object({ token: tokenSchema }).parse(i))
   .handler(async ({ data }) => {
     const sb = await db();
     const { data: a, error } = await sb.from("alunos").select("id, nome, objetivo, plano_enviado").eq("token", data.token).maybeSingle();
@@ -91,7 +91,7 @@ export const treinoDoAluno = createServerFn({ method: "GET" })
   });
 
 export const enviarFeito = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         token: tokenSchema,
