@@ -3,7 +3,6 @@ import { MessageCircle, Users } from "lucide-react";
 
 import hermes from "@/assets/hermes.jpg";
 import { Button } from "@/components/ui/button";
-import { useAlunos } from "@/lib/armazenamento";
 import { LINK_PROFESSOR, PROFESSOR_PADRAO } from "@/lib/envios";
 
 export const Route = createFileRoute("/")({
@@ -21,7 +20,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Inicio() {
-  const [alunos] = useAlunos();
   return (
     <main className="mx-auto max-w-md space-y-5 px-5 pt-8">
       <div>
@@ -33,7 +31,7 @@ function Inicio() {
         <p className="text-sm text-secondary-foreground">Cadastre seus alunos, acompanhe os treinos e receba a avaliação do Hermes.</p>
       </div>
       <Button asChild variant="hero" size="xl">
-        <Link to="/alunos"><Users className="h-6 w-6" /> MEUS ALUNOS ({alunos.length})</Link>
+        <Link to="/alunos"><Users className="h-6 w-6" /> MEUS ALUNOS</Link>
       </Button>
       <a href={LINK_PROFESSOR + "Ola"} target="_blank" rel="noreferrer" className="block rounded-2xl bg-paper p-4 text-paper-foreground">
         <p className="flex items-center gap-2 text-sm font-bold"><MessageCircle className="h-4 w-4" /> WhatsApp do professor</p>

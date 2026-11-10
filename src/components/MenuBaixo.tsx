@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Building2, Dumbbell, Home, Menu, Trophy } from "lucide-react";
 
 const itens = [
@@ -10,6 +10,8 @@ const itens = [
 ] as const;
 
 export function MenuBaixo() {
+  const caminho = useRouterState({ select: (s) => s.location.pathname });
+  if (caminho.startsWith("/a/")) return null; // tela do aluno não mostra o menu do professor
   return (
     <nav aria-label="Menu" className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur">
       <ul className="mx-auto grid max-w-md grid-cols-5">
