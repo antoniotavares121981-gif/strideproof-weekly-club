@@ -1,6 +1,6 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 
-import robo from "@/assets/robozinho.png";
+import boneco from "@/assets/boneco-magico.png";
 import type { Resultado, Tentativa } from "@/lib/envios";
 
 type Estado =
@@ -9,20 +9,31 @@ type Estado =
   | { tipo: "erro"; mensagem: string }
   | { tipo: "pronto"; antes: Tentativa; depois?: Tentativa | undefined };
 
-export function Robozinho({ estado }: { estado: Estado }) {
+export function BonecoMagico({ estado }: { estado: Estado }) {
+  const final = estado.tipo === "pronto" ? (estado.depois ?? estado.antes) : null;
   return (
-    <section aria-label="Robozinho" className="rounded-3xl border border-border bg-card p-5 shadow-card">
+    <section aria-label="Boneco Mágico" className="rounded-3xl border border-border bg-card p-5 shadow-card">
       <div className="flex items-center gap-3">
-        <img src={robo} alt="Robozinho" width={816} height={816} loading="lazy" className="h-20 w-20 animate-robo" />
-        <div>
-          <h2 className="text-3xl text-card-foreground">ROBOZINHO</h2>
-          <p className="text-sm text-muted-foreground">{falaDoRobo(estado)}</p>
+        <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-secondary">
+          <img
+            src={boneco}
+            alt="Boneco Mágico, o treinador"
+            width={1024}
+            height={1024}
+            loading="lazy"
+            className="h-full w-full origin-top scale-[1.9] object-cover"
+          />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-3xl text-card-foreground">BONECO MÁGICO</h2>
+          <p className="text-xs font-bold tracking-wider text-primary">AVALIAÇÃO DO TREINO</p>
+          {final ? null : <p className="mt-1 text-sm text-muted-foreground">{falaDoBoneco(estado)}</p>}
         </div>
       </div>
 
       {estado.tipo === "conferindo" ? (
         <div className="relative mt-4 overflow-hidden rounded-2xl">
-          <img src={estado.foto} alt="Foto sendo conferida" className="max-h-72 w-full object-cover opacity-70" />
+          <img src={estado.foto} alt="Foto sendo avaliada" className="max-h-72 w-full object-cover opacity-70" />
           <div className="absolute inset-x-0 top-0 h-1/3 animate-scan bg-gradient-to-b from-transparent via-primary/40 to-transparent" />
         </div>
       ) : null}
@@ -31,8 +42,15 @@ export function Robozinho({ estado }: { estado: Estado }) {
         <p className="mt-4 rounded-xl bg-destructive/15 p-3 text-sm font-semibold text-destructive">{estado.mensagem}</p>
       ) : null}
 
-      {estado.tipo === "pronto" ? (
+      {estado.tipo === "pronto" && final ? (
         <div className="mt-4 space-y-4">
+          <p
+            className={`rounded-2xl border-l-4 bg-muted p-4 text-base font-semibold leading-snug text-card-foreground ${
+              final.resultado.veredito === "CERTO" ? "border-success" : "border-destructive"
+            }`}
+          >
+            {final.resultado.mensagem}
+          </p>
           {estado.depois ? (
             <>
               <BlocoResultado titulo="ANTES" resultado={estado.antes.resultado} apagado />
@@ -47,18 +65,16 @@ export function Robozinho({ estado }: { estado: Estado }) {
   );
 }
 
-function falaDoRobo(estado: Estado) {
+function falaDoBoneco(estado: Estado) {
   switch (estado.tipo) {
     case "esperando":
-      return "Manda a foto do relógio ou do Strava que eu confiro pra tu!";
+      return "Envie a foto do relógio ou do Strava. Eu avalio se o treino seguiu o plano.";
     case "conferindo":
-      return "Olhando a foto… só um minutinho.";
+      return "Analisando o treino…";
     case "erro":
-      return "Eita, deu ruim aqui.";
-    case "pronto": {
-      const final = estado.depois ?? estado.antes;
-      return final.resultado.mensagem;
-    }
+      return "Não foi possível avaliar agora.";
+    case "pronto":
+      return "";
   }
 }
 
@@ -104,4 +120,4 @@ function BlocoResultado({
   );
 }
 
-export type { Estado as EstadoRobo };
+export type { Estado as EstadoBoneco };
