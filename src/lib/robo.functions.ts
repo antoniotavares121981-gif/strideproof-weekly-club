@@ -9,16 +9,12 @@ const Entrada = z.object({
     km: z.number(),
     tempo: z.string().max(20),
     pace: z.string().max(20),
-    fcMax: z.number(),
     dica: z.string().max(300),
   }),
   dados: z.object({
     km: z.string().max(20),
     tempo: z.string().max(20),
     pace: z.string().max(20),
-    fc: z.string().max(20),
-    sentiu: z.string().max(30),
-    comentario: z.string().max(500),
   }),
   foto: z
     .string()

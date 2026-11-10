@@ -5,7 +5,7 @@ import { DIAS } from "@/lib/plano";
 
 function tentativa(veredito: "CERTO" | "ERRADO", km: string): Tentativa {
   return {
-    dados: { km, tempo: "36:00", pace: "6:00", fc: "148", sentiu: "bem", comentario: "" },
+    dados: { km, tempo: "36:00", pace: "6:00" },
     foto: "data:image/jpeg;base64,AAAA",
     resultado: {
       veredito,

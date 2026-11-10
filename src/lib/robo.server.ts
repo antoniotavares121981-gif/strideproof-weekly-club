@@ -33,7 +33,7 @@ const ESQUEMA = jsonSchema<Resultado>({
         additionalProperties: false,
         required: ["campo", "valorFoto", "status", "motivo"],
         properties: {
-          campo: { type: "string", enum: ["Km", "Tempo", "Pace", "FC"] },
+          campo: { type: "string", enum: ["Km", "Tempo", "Pace"] },
           valorFoto: { type: ["string", "null"] },
           status: { type: "string", enum: ["CERTO", "ERRADO"] },
           motivo: { type: "string" },
@@ -48,10 +48,10 @@ const INSTRUCOES = `Você é o "Robozinho" do Circuito Jaua, assistente de um pr
 Você recebe: o treino que o professor passou, os números que o aluno digitou e uma foto (print do relógio, Garmin, Strava, etc).
 
 Sua tarefa:
-1. Leia na foto: distância (Km), tempo total, pace médio (min/km) e FC média (bpm). Se algo não aparece na foto, use valorFoto = null.
-2. Para cada campo (Km, Tempo, Pace, FC), nesta ordem, diga CERTO ou ERRADO:
-   - ERRADO se o número digitado não bate com a foto (tolerância: Km ±0,1; Tempo ±30 s; Pace ±5 s/km; FC ±3 bpm).
-   - ERRADO se não cumpriu o treino: Km abaixo de 95% da meta; Pace mais de 15 s/km mais lento OU mais de 20 s/km mais rápido que a meta; FC média acima da FC máxima pedida; Tempo muito fora do esperado para a distância e pace.
+1. Leia na foto: distância (Km), tempo total e pace médio (min/km). Se algo não aparece na foto, use valorFoto = null.
+2. Para cada campo (Km, Tempo, Pace), nesta ordem, diga CERTO ou ERRADO:
+   - ERRADO se o número digitado não bate com a foto (tolerância: Km ±0,1; Tempo ±30 s; Pace ±5 s/km).
+   - ERRADO se não cumpriu o treino: Km abaixo de 95% da meta; Pace mais de 15 s/km mais lento OU mais de 20 s/km mais rápido que a meta; Tempo muito fora do esperado para a distância e pace.
    - Se o campo não aparece na foto, julgue só pelo digitado contra a meta e diga no motivo que não aparece na foto.
    - Se o aluno deixou o campo vazio, use o valor da foto para julgar a meta e diga no motivo que ele esqueceu de preencher.
 3. fotoValida = false se a foto não for de um relógio/app de corrida. Nesse caso todos os itens ficam ERRADO com motivo "foto não é do relógio/Strava".
@@ -72,8 +72,8 @@ export async function conferirComRobo(meta: Meta, dados: Dados, foto: string): P
     fetch: runIdFetch(),
   });
 
-  const texto = `TREINO DO PROFESSOR: ${meta.titulo} — ${meta.km} km, tempo ${meta.tempo}, pace ${meta.pace}/km, FC máxima ${meta.fcMax} bpm.
-O QUE O ALUNO DIGITOU: Km "${dados.km}", Tempo "${dados.tempo}", Pace "${dados.pace}", FC "${dados.fc}".
+  const texto = `TREINO DO PROFESSOR: ${meta.titulo} — ${meta.km} km, tempo ${meta.tempo}, pace ${meta.pace}/km.
+O QUE O ALUNO DIGITOU: Km "${dados.km}", Tempo "${dados.tempo}", Pace "${dados.pace}".
 Confira com a foto abaixo.`;
 
   let erroStream: unknown = null;
