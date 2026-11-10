@@ -5,9 +5,9 @@ import { TopoPagina } from "@/components/TopoPagina";
 export const Route = createFileRoute("/provas")({
   head: () => ({
     meta: [
-      { title: "Provas — GM Assessoria Esportiva" },
+      { title: "Provas — Assessoria de Corrida" },
       { name: "description", content: "Calendário de provas da assessoria. Em breve o professor coloca as próximas corridas aqui." },
-      { property: "og:title", content: "Provas — GM Assessoria Esportiva" },
+      { property: "og:title", content: "Provas — Assessoria de Corrida" },
       { property: "og:description", content: "Calendário de provas da assessoria. Em breve o professor coloca as próximas corridas aqui." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
