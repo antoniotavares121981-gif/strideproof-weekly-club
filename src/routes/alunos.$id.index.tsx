@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AvaliacaoHermes } from "@/components/Hermes";
@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { enviarPlano, salvarRascunho, verAluno } from "@/lib/assessoria.functions";
 import { linkAluno } from "@/lib/envios";
-import { DIAS_SEMANA, PLANO_PADRAO, mensagemEnvioAluno, planoValido, resumoDia, type DiaPlano } from "@/lib/treino";
+import { PLANO_PADRAO, mensagemEnvioAluno, planoValido, resumoDia, type DiaPlano } from "@/lib/treino";
 
 export const Route = createFileRoute("/alunos/$id/")({
   head: () => ({
@@ -38,6 +38,7 @@ function TelaAluno() {
   const { data, isLoading } = useQuery({ queryKey: ["aluno", id], queryFn: () => ver({ data: { id } }) });
   const [plano, setPlano] = useState<DiaPlano[]>(PLANO_PADRAO);
   const [enviando, setEnviando] = useState(false);
+  const envioEmCurso = useRef(false);
 
   useEffect(() => {
     if (data) setPlano(data.rascunho.length === 3 ? data.rascunho : data.enviado ?? PLANO_PADRAO);
@@ -50,30 +51,27 @@ function TelaAluno() {
   const mudar = (i: number, campo: keyof DiaPlano, v: string) => setPlano(plano.map((d, j) => (j === i ? { ...d, [campo]: v } : d)));
 
   async function guardar() {
-    if (!planoValido(plano)) { toast.error("Preencha distância e pace (ex.: 5:30) dos 3 dias."); return; }
-    await salvar({ data: { id, plano } });
-    toast.success("Treino salvo. O aluno ainda não recebeu.");
+    if (!planoValido(plano)) { toast.error("Preencha distância, tempo e ritmo (ex.: 4:59) dos 3 dias."); return; }
+    try {
+      await salvar({ data: { id, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
+      toast.success("Treino salvo. O aluno ainda não recebeu.");
+    } catch { toast.error("Não deu pra salvar. Tente de novo."); }
   }
 
-  async function mandar() {
-    if (enviando) return;
-    if (!planoValido(plano)) { toast.error("Preencha distância e pace (ex.: 5:30) dos 3 dias."); return; }
-    // Abre a janela antes de esperar, pra o celular não bloquear.
-    const janela = window.open("about:blank", "_blank");
-    if (!janela) { toast.error("Permita abrir uma nova janela para enviar pelo WhatsApp."); return; }
-    janela.opener = null;
+  async function mandar(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (envioEmCurso.current) { e.preventDefault(); return; }
+    if (!planoValido(plano)) { e.preventDefault(); toast.error("Preencha distância, tempo e ritmo (ex.: 4:59) dos 3 dias."); return; }
+    // O link abre diretamente; a página original permanece aberta para salvar o plano.
+    envioEmCurso.current = true;
     setEnviando(true);
     try {
-      await enviar({ data: { id, plano } });
-      const link = `${window.location.origin}/a/${aluno.token}`;
-      const url = linkAluno(aluno.whatsapp, mensagemEnvioAluno(aluno.nome, link, plano));
-      janela.location.href = url;
-      toast.success("Treino enviado! Agora o aluno já vê no link dele.");
+      await enviar({ data: { id, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
+      toast.success("Treino disponível no link do aluno. Confirme o envio no WhatsApp.");
       qc.invalidateQueries({ queryKey: ["aluno", id] });
     } catch {
-      janela?.close();
-      toast.error("Não deu pra enviar. Tente de novo.");
+      toast.error("Não deu pra salvar o treino. Volte e tente de novo antes de enviar a mensagem.");
     } finally {
+      envioEmCurso.current = false;
       setEnviando(false);
     }
   }
@@ -86,18 +84,15 @@ function TelaAluno() {
           <h2 className="font-display text-3xl text-foreground">TREINO PLANEJADO DA SEMANA</h2>
           {plano.map((d, i) => (
             <div key={i} className="space-y-2 rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
-              <select
-                aria-label={`Dia do treino ${i + 1}`}
-                value={d.dia}
-                onChange={(e) => mudar(i, "dia", e.target.value)}
-                className="w-full rounded-lg border-2 border-paper-foreground/15 bg-paper p-2 font-display text-2xl"
-              >
-                {DIAS_SEMANA.map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
+              <h3 className="font-display text-2xl">{d.dia}</h3>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label htmlFor={`km${i}`} className="text-paper-muted">DISTÂNCIA (km)</Label>
-                  <Input id={`km${i}`} inputMode="decimal" value={d.km} onChange={(e) => mudar(i, "km", e.target.value)} className="h-12 text-lg font-bold" />
+                  <Input id={`km${i}`} inputMode="decimal" placeholder="4" value={d.km} onChange={(e) => mudar(i, "km", e.target.value)} className="h-12 text-lg font-bold" />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`tempo${i}`} className="text-paper-muted">TEMPO</Label>
+                  <Input id={`tempo${i}`} placeholder="20min" maxLength={20} value={d.tempo ?? ""} onChange={(e) => mudar(i, "tempo", e.target.value)} className="h-12 text-lg font-bold" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor={`pace${i}`} className="text-paper-muted">RITMO (/km)</Label>
@@ -109,9 +104,6 @@ function TelaAluno() {
             </div>
           ))}
           <Button type="button" variant="outline" size="lg" className="w-full" onClick={guardar}>SALVAR SEM ENVIAR</Button>
-          <Button type="button" variant="whatsapp" size="xl" onClick={mandar} disabled={enviando}>
-            <Send className="h-6 w-6" /> ENVIAR PELO WHATSAPP
-          </Button>
           <p className="text-sm text-muted-foreground">
             {aluno.enviado_em ? `Último envio: ${new Date(aluno.enviado_em).toLocaleString("pt-BR")}` : "O aluno ainda não recebeu nenhum treino."}
           </p>
@@ -143,6 +135,11 @@ function TelaAluno() {
             );
           })}
         </section>
+        <Button asChild variant="whatsapp" size="xl" className="min-h-16 h-auto whitespace-normal px-4 py-4 text-center">
+          <a href={linkAluno(aluno.whatsapp, mensagemEnvioAluno(aluno.nome, `${typeof window === "undefined" ? "" : window.location.origin}/a/${aluno.token}`, plano))} target="_blank" rel="noopener noreferrer" onClick={mandar} aria-disabled={enviando}>
+            <Send className="h-6 w-6" /> {enviando ? "SALVANDO..." : "ENVIAR PELO WHATSAPP"}
+          </a>
+        </Button>
       </div>
     </main>
   );

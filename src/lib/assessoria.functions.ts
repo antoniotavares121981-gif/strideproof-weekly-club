@@ -8,6 +8,7 @@ const db = async () => (await import("@/integrations/supabase/client.server")).s
 const diaSchema = z.object({
   dia: z.string().min(1).max(20),
   km: z.string().min(1).max(10),
+  tempo: z.string().trim().min(1).max(20),
   pace: z.string().regex(/^\d{1,2}:\d{2}$/, "Pace no formato 5:30"),
   detalhes: z.string().max(500),
 });
