@@ -107,9 +107,10 @@ export const enviarFeito = createServerFn({ method: "POST" })
     const sb = await db();
     const { data: a } = await sb.from("alunos").select("id, plano_enviado").eq("token", data.token).maybeSingle();
     const plano = a?.plano_enviado as unknown as DiaPlano[] | null;
-    if (!a || !plano?.[data.dia_index]) throw new Error("Treino não encontrado.");
+    const diaPlano = plano?.[data.dia_index];
+    if (!a || !diaPlano) throw new Error("Treino não encontrado.");
     const { error } = await sb.from("treinos_feitos").insert({
-      aluno_id: a.id, dia_index: data.dia_index, dia: plano[data.dia_index].dia, km: data.km, tempo: data.tempo, pace: data.pace, foto: data.foto,
+      aluno_id: a.id, dia_index: data.dia_index, dia: diaPlano.dia, km: data.km, tempo: data.tempo, pace: data.pace, foto: data.foto,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
