@@ -1,7 +1,7 @@
 import type { Meta } from "./plano";
 
 export type Veredito = "CERTO" | "ERRADO";
-export type Campo = "Km" | "Tempo" | "Pace";
+export type Campo = "Km" | "Tempo" | "Pace" | "Tipo de treino";
 
 export type Dados = {
   km: string;
@@ -37,7 +37,7 @@ export type EnvioDia = {
 
 export const DADOS_VAZIOS: Dados = { km: "", tempo: "", pace: "" };
 
-/** O aluno só pode corrigir 1 vez, e só quando o robô disse ERRADO. */
+/** O aluno só pode corrigir 1 vez, e só quando o Boneco Mágico disse ERRADO. */
 export function podeCorrigir(envio: EnvioDia | null | undefined): boolean {
   if (!envio) return false;
   if (envio.depois) return false;
@@ -50,7 +50,7 @@ function blocoTentativa(t: Tentativa): string {
   const d = t.dados;
   const linhas = [
     `Km: ${d.km || "-"} | Tempo: ${d.tempo || "-"} | Pace: ${d.pace || "-"}`,
-    `Robo: ${marca(t.resultado.veredito)}`,
+    `Boneco Magico: ${marca(t.resultado.veredito)}`,
     ...t.resultado.itens.map((i) => `- ${i.campo}: ${marca(i.status)}${i.status === "ERRADO" ? ` (${i.motivo})` : ""}`),
   ];
   if (!t.resultado.fotoValida) linhas.push("Atencao: a foto nao parece do relogio/Strava.");

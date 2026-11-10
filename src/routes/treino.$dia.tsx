@@ -4,7 +4,7 @@ import { ImagePlus, Pencil, Send, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { Robozinho, type EstadoRobo } from "@/components/Robozinho";
+import { BonecoMagico, type EstadoBoneco } from "@/components/BonecoMagico";
 import { TopoPagina } from "@/components/TopoPagina";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +33,8 @@ export const Route = createFileRoute("/treino/$dia")({
     const nome = loaderData?.dia.nome ?? "Treino";
     const titulo = `Treino de ${nome} — Circuito Jaua`;
     const desc = loaderData
-      ? `${loaderData.dia.meta.titulo}: ${loaderData.dia.meta.km} km. Preencha, mande a foto e o robô confere.`
-      : "Preencha o treino, mande a foto e o robô confere.";
+      ? `${loaderData.dia.meta.titulo}: ${loaderData.dia.meta.km} km. Preencha, mande a foto e o Boneco Mágico avalia.`
+      : "Preencha o treino, mande a foto e o Boneco Mágico avalia.";
     return {
       meta: [
         { title: titulo },
@@ -63,7 +63,7 @@ function Treino() {
   const [dados, setDados] = useState<Dados>(DADOS_VAZIOS);
   const [foto, setFoto] = useState<string | null>(null);
   const [corrigindo, setCorrigindo] = useState(false);
-  const [estado, setEstado] = useState<EstadoRobo>({ tipo: "esperando" });
+  const [estado, setEstado] = useState<EstadoBoneco>({ tipo: "esperando" });
   const inputFoto = useRef<HTMLInputElement>(null);
   const robo = useRef<HTMLDivElement>(null);
 
@@ -129,9 +129,9 @@ function Treino() {
       setCorrigindo(false);
       setDados(DADOS_VAZIOS);
       setFoto(null);
-      toast.success("Robô conferiu! Agora manda pro professor.");
+      toast.success("Treino avaliado! Agora manda pro professor.");
     } catch {
-      setEstado({ tipo: "erro", mensagem: "Sem internet ou o robô não respondeu. Tenta de novo." });
+      setEstado({ tipo: "erro", mensagem: "Sem internet ou o Boneco Mágico não respondeu. Tente de novo." });
     }
   }
 
@@ -238,7 +238,7 @@ function Treino() {
       ) : null}
 
       <div ref={robo} className="mx-5 scroll-mt-4 space-y-3">
-        <Robozinho estado={estado} />
+        <BonecoMagico estado={estado} />
 
         {envio && !corrigindo && estado.tipo !== "conferindo" ? (
           <div className="space-y-3">
