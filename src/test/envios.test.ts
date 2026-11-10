@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import { avaliarHermes, linkAluno, linkProfessor, mensagemTreinoSemana, numeroWhatsApp, paraSegundos } from "@/lib/envios";
 import { DIAS, resumoMeta } from "@/lib/plano";
 
-const seg = DIAS[0]!.meta;
+const primeiroDia = DIAS[0];
+if (!primeiroDia) throw new Error("Plano sem segunda-feira");
+const seg = primeiroDia.meta;
 
 describe("regras", () => {
   it("professor sempre 71 99676-9048", () => {
@@ -28,7 +30,7 @@ describe("regras", () => {
   it("Hermes: dentro da faixa = sem erros", () => {
     const a = avaliarHermes(seg, { km: "9,7", tempo: "1h00", pace: "6:11", em: "" });
     expect(a.erros).toHaveLength(0);
-    expect(a.texto).toContain("Aqui na GM Assessoria Esportiva, vimos que você concluiu seu treino de 60 minutos correndo 9,7 km");
+    expect(a.texto).toContain("Aqui na Assessoria de Corrida, vimos que você concluiu seu treino de 60 minutos correndo 9,7 km");
   });
   it("Hermes: pace rápido demais = erro", () => {
     const a = avaliarHermes(seg, { km: "9,7", tempo: "50:00", pace: "5:09", em: "" });

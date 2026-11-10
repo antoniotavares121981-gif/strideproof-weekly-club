@@ -5,9 +5,9 @@ import { TopoPagina } from "@/components/TopoPagina";
 export const Route = createFileRoute("/mais")({
   head: () => ({
     meta: [
-      { title: "Mais — GM Assessoria Esportiva" },
+      { title: "Mais — Assessoria de Corrida" },
       { name: "description", content: "Professor: 71 99676-9048. Os dados ficam salvos neste celular." },
-      { property: "og:title", content: "Mais — GM Assessoria Esportiva" },
+      { property: "og:title", content: "Mais — Assessoria de Corrida" },
       { property: "og:description", content: "Professor: 71 99676-9048. Os dados ficam salvos neste celular." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

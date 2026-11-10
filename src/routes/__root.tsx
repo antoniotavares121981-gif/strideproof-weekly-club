@@ -83,10 +83,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GM Assessoria Esportiva" },
+      { title: "Assessoria de Corrida" },
       { name: "description", content: "Treinos dos alunos, avaliação do Hermes e envio pelo WhatsApp." },
       { name: "theme-color", content: "#141b2e" },
-      { property: "og:title", content: "GM Assessoria Esportiva" },
+      { property: "og:title", content: "Assessoria de Corrida" },
       { property: "og:description", content: "Treinos dos alunos, avaliação do Hermes e envio pelo WhatsApp." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

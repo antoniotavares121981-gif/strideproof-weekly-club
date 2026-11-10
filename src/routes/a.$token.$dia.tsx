@@ -16,9 +16,9 @@ import { resumoDia } from "@/lib/treino";
 export const Route = createFileRoute("/a/$token/$dia")({
   head: () => ({
     meta: [
-      { title: "Treino do dia — GM Assessoria Esportiva" },
+      { title: "Treino do dia — Assessoria de Corrida" },
       { name: "description", content: "Detalhes do treino do dia e registro do treino feito." },
-      { property: "og:title", content: "Treino do dia — GM Assessoria Esportiva" },
+      { property: "og:title", content: "Treino do dia — Assessoria de Corrida" },
       { property: "og:description", content: "Detalhes do treino do dia e registro do treino feito." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -9,9 +9,9 @@ import { resumoDia } from "@/lib/treino";
 export const Route = createFileRoute("/a/$token/")({
   head: () => ({
     meta: [
-      { title: "Meu treino — GM Assessoria Esportiva" },
+      { title: "Meu treino — Assessoria de Corrida" },
       { name: "description", content: "Seu treino da semana enviado pelo professor." },
-      { property: "og:title", content: "Meu treino — GM Assessoria Esportiva" },
+      { property: "og:title", content: "Meu treino — Assessoria de Corrida" },
       { property: "og:description", content: "Seu treino da semana enviado pelo professor." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -32,7 +32,7 @@ function MeuTreino() {
   return (
     <main className="mx-auto max-w-md space-y-5 px-5 pt-8">
       <div>
-        <p className="font-display text-lg text-primary">GM ASSESSORIA ESPORTIVA</p>
+        <p className="font-display text-lg text-primary">MEU TREINO</p>
         <h1 className="text-5xl leading-none text-foreground">OLÁ, {data.nome.toUpperCase()}</h1>
         {data.objetivo ? <p className="text-muted-foreground">Objetivo: {data.objetivo}</p> : null}
       </div>

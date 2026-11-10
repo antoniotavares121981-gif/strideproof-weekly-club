@@ -18,9 +18,9 @@ import { DIAS_SEMANA, PLANO_PADRAO, mensagemEnvioAluno, planoValido, resumoDia, 
 export const Route = createFileRoute("/alunos/$id/")({
   head: () => ({
     meta: [
-      { title: "Tela do aluno — GM Assessoria Esportiva" },
+      { title: "Ficha do aluno — Painel do Professor" },
       { name: "description", content: "Treino planejado da semana e treinos feitos do aluno." },
-      { property: "og:title", content: "Tela do aluno — GM Assessoria Esportiva" },
+      { property: "og:title", content: "Ficha do aluno — Painel do Professor" },
       { property: "og:description", content: "Treino planejado da semana e treinos feitos do aluno." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -56,15 +56,18 @@ function TelaAluno() {
   }
 
   async function mandar() {
+    if (enviando) return;
     if (!planoValido(plano)) { toast.error("Preencha distância e pace (ex.: 5:30) dos 3 dias."); return; }
     // Abre a janela antes de esperar, pra o celular não bloquear.
     const janela = window.open("about:blank", "_blank");
+    if (!janela) { toast.error("Permita abrir uma nova janela para enviar pelo WhatsApp."); return; }
+    janela.opener = null;
     setEnviando(true);
     try {
       await enviar({ data: { id, plano } });
       const link = `${window.location.origin}/a/${aluno.token}`;
       const url = linkAluno(aluno.whatsapp, mensagemEnvioAluno(aluno.nome, link, plano));
-      if (janela) janela.location.href = url; else window.location.href = url;
+      janela.location.href = url;
       toast.success("Treino enviado! Agora o aluno já vê no link dele.");
       qc.invalidateQueries({ queryKey: ["aluno", id] });
     } catch {
@@ -97,7 +100,7 @@ function TelaAluno() {
                   <Input id={`km${i}`} inputMode="decimal" value={d.km} onChange={(e) => mudar(i, "km", e.target.value)} className="h-12 text-lg font-bold" />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor={`pace${i}`} className="text-paper-muted">PACE (/km)</Label>
+                  <Label htmlFor={`pace${i}`} className="text-paper-muted">RITMO (/km)</Label>
                   <Input id={`pace${i}`} placeholder="5:30" value={d.pace} onChange={(e) => mudar(i, "pace", e.target.value)} className="h-12 text-lg font-bold" />
                 </div>
               </div>
@@ -107,7 +110,7 @@ function TelaAluno() {
           ))}
           <Button type="button" variant="outline" size="lg" className="w-full" onClick={guardar}>SALVAR SEM ENVIAR</Button>
           <Button type="button" variant="whatsapp" size="xl" onClick={mandar} disabled={enviando}>
-            <Send className="h-6 w-6" /> ENVIAR TREINO PARA O ALUNO
+            <Send className="h-6 w-6" /> ENVIAR PELO WHATSAPP
           </Button>
           <p className="text-sm text-muted-foreground">
             {aluno.enviado_em ? `Último envio: ${new Date(aluno.enviado_em).toLocaleString("pt-BR")}` : "O aluno ainda não recebeu nenhum treino."}

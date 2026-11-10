@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ChevronRight, Trash2, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { TopoPagina } from "@/components/TopoPagina";
@@ -15,10 +15,10 @@ import { numeroValido } from "@/lib/envios";
 export const Route = createFileRoute("/alunos/")({
   head: () => ({
     meta: [
-      { title: "Alunos — GM Assessoria Esportiva" },
-      { name: "description", content: "Lista de alunos da GM Assessoria Esportiva." },
-      { property: "og:title", content: "Alunos — GM Assessoria Esportiva" },
-      { property: "og:description", content: "Lista de alunos da GM Assessoria Esportiva." },
+      { title: "Alunos — Painel do Professor" },
+      { name: "description", content: "Alunos, objetivos e treinos de corrida no Painel do Professor." },
+      { property: "og:title", content: "Alunos — Painel do Professor" },
+      { property: "og:description", content: "Alunos, objetivos e treinos de corrida no Painel do Professor." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -26,24 +26,28 @@ export const Route = createFileRoute("/alunos/")({
   component: Alunos,
 });
 
-function Alunos() {
+export function Alunos() {
   const qc = useQueryClient();
   const listar = useServerFn(listarAlunos);
   const criar = useServerFn(criarAluno);
   const apagar = useServerFn(apagarAluno);
   const { data: alunos, isLoading } = useQuery({ queryKey: ["alunos"], queryFn: () => listar() });
   const [f, setF] = useState({ nome: "", whatsapp: "", objetivo: "" });
+  const salvando = useRef(false);
 
   const cadastro = useMutation({
     mutationFn: () => criar({ data: f }),
     onSuccess: () => { setF({ nome: "", whatsapp: "", objetivo: "" }); toast.success("Aluno cadastrado!"); qc.invalidateQueries({ queryKey: ["alunos"] }); },
     onError: () => toast.error("Não deu pra salvar. Tente de novo."),
+    onSettled: () => { salvando.current = false; },
   });
 
   function cadastrar(e: React.FormEvent) {
     e.preventDefault();
+    if (salvando.current) return;
     if (!f.nome.trim()) { toast.error("Coloque o nome do aluno."); return; }
     if (!numeroValido(f.whatsapp)) { toast.error("Número inválido. Ex.: 71 98888-7777"); return; }
+    salvando.current = true;
     cadastro.mutate();
   }
 
@@ -55,23 +59,24 @@ function Alunos() {
 
   return (
     <main className="mx-auto max-w-md">
-      <TopoPagina titulo={<>MEUS <span className="text-primary">ALUNOS</span></>} subtitulo="Toque no nome para abrir a tela do aluno" />
+      <TopoPagina titulo="Painel do Professor" />
       <div className="space-y-5 px-5">
         <ul className="space-y-2">
           {isLoading ? <li className="text-muted-foreground">Carregando...</li> : null}
           {alunos && alunos.length === 0 ? <li className="text-muted-foreground">Nenhum aluno ainda. Cadastre abaixo.</li> : null}
           {alunos?.map((a) => (
             <li key={a.id} className="flex items-center gap-2 rounded-2xl bg-paper text-paper-foreground">
-              <Link to="/alunos/$id" params={{ id: a.id }} className="flex flex-1 items-center justify-between p-4">
-                <span>
+               <Link to="/alunos/$id" params={{ id: a.id }} className="flex min-w-0 flex-1 items-center justify-between gap-2 p-4">
+                 <span className="min-w-0 break-words">
                   <span className="block text-lg font-bold">{a.nome}</span>
-                  <span className="block text-sm text-paper-muted">{a.whatsapp}{a.objetivo ? ` - ${a.objetivo}` : ""}</span>
+                   <span className="block text-sm text-paper-muted">WhatsApp: {a.whatsapp}</span>
+                   <span className="block text-sm text-paper-muted">Objetivo: {a.objetivo || "Não informado"}</span>
                 </span>
                 <ChevronRight />
               </Link>
-              <button type="button" aria-label={`Apagar ${a.nome}`} onClick={() => remover(a.id, a.nome)} className="p-4 text-destructive">
+               <Button type="button" variant="ghost" size="icon" aria-label={`Apagar ${a.nome}`} onClick={() => remover(a.id, a.nome)} className="mr-2 shrink-0 text-destructive">
                 <Trash2 className="h-5 w-5" />
-              </button>
+               </Button>
             </li>
           ))}
         </ul>
@@ -89,7 +94,7 @@ function Alunos() {
             <Label htmlFor="obj">OBJETIVO</Label>
             <Input id="obj" maxLength={120} placeholder="Ex.: correr 10 km" value={f.objetivo} onChange={(e) => setF({ ...f, objetivo: e.target.value })} className="h-12" />
           </div>
-          <Button type="submit" variant="hero" size="lg" className="w-full" disabled={cadastro.isPending}><UserPlus /> CADASTRAR</Button>
+           <Button type="submit" variant="hero" size="lg" className="w-full" disabled={cadastro.isPending}><UserPlus /> {cadastro.isPending ? "SALVANDO..." : "SALVAR"}</Button>
         </form>
       </div>
     </main>
