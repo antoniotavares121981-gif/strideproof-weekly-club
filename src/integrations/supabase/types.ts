@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alunos: {
+        Row: {
+          created_at: string
+          enviado_em: string | null
+          id: string
+          nome: string
+          objetivo: string
+          plano_enviado: Json | null
+          rascunho: Json
+          token: string
+          whatsapp: string
+        }
+        Insert: {
+          created_at?: string
+          enviado_em?: string | null
+          id?: string
+          nome: string
+          objetivo?: string
+          plano_enviado?: Json | null
+          rascunho?: Json
+          token?: string
+          whatsapp: string
+        }
+        Update: {
+          created_at?: string
+          enviado_em?: string | null
+          id?: string
+          nome?: string
+          objetivo?: string
+          plano_enviado?: Json | null
+          rascunho?: Json
+          token?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
+      treinos_feitos: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          dia: string
+          dia_index: number
+          foto: string | null
+          id: string
+          km: string
+          pace: string
+          tempo: string
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          dia: string
+          dia_index: number
+          foto?: string | null
+          id?: string
+          km: string
+          pace?: string
+          tempo: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          dia?: string
+          dia_index?: number
+          foto?: string | null
+          id?: string
+          km?: string
+          pace?: string
+          tempo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treinos_feitos_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
