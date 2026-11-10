@@ -3,10 +3,21 @@ import { PLANO_PADRAO, mensagemEnvioAluno, planoValido } from "@/lib/treino";
 import { linkAluno } from "@/lib/envios";
 
 describe("treino da semana", () => {
+  const planoComTempo = PLANO_PADRAO.map((d, i) => ({ ...d, tempo: ["20min", "42min", "58min"][i] ?? "" }));
   it("plano tem exatamente 3 dias com distância e pace", () => {
-    expect(planoValido(PLANO_PADRAO)).toBe(true);
+    expect(planoValido(planoComTempo)).toBe(true);
+    expect(planoValido(PLANO_PADRAO)).toBe(false);
     expect(planoValido(PLANO_PADRAO.slice(0, 2))).toBe(false);
     expect(planoValido(PLANO_PADRAO.map((d, i) => (i === 0 ? { ...d, pace: "rapido" } : d)))).toBe(false);
+  });
+  it("envia distância, tempo e ritmo dos três dias sem alterar a saudação", () => {
+    const mensagem = mensagemEnvioAluno("José", "https://x.app/a/abc", planoComTempo);
+    const url = new URL(linkAluno("71 98888-7777", mensagem));
+    expect(url.searchParams.get("text")).toBe(mensagem);
+    expect(mensagem.split("\n")[0]).toBe("Olá, José! Seu treino da semana chegou!");
+    expect(mensagem).toContain("*SEGUNDA* - 4 km - 20min a 4:59 /km");
+    expect(mensagem).toContain("*QUARTA* - 7 km - 42min a 6:00 /km");
+    expect(mensagem).toContain("*SEXTA* - 10 km - 58min a 5:50 /km");
   });
   it("mensagem pro aluno tem os 3 dias e o link dele", () => {
     const m = mensagemEnvioAluno("Luiz", "https://x.app/a/abc", PLANO_PADRAO);

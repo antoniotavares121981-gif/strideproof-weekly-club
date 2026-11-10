@@ -2,3 +2,6 @@
 - [x] Show student list and individual details; protect SALVAR against repeated taps.
 - [x] Preserve three-day plans and records; adjust WhatsApp greeting and external opening.
 - [x] Verify saving and sending with tests and the student view.
+- [x] Add planned time to each day while preserving existing plans and records.
+- [x] Keep a large direct WhatsApp link at the end of the student file, with all three workout values.
+- [x] Test saving, reloading, student visibility and the direct WhatsApp message.

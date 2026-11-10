@@ -75,6 +75,7 @@ function TreinoDia() {
         <section className="rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
           <p className="text-sm font-bold text-paper-muted">O QUE VOCÊ TEM QUE FAZER</p>
           <p className="font-display text-4xl leading-none">{d.km.replace(".", ",")} KM</p>
+          {d.tempo ? <p className="text-xl font-bold">Tempo: {d.tempo}</p> : null}
           <p className="text-xl font-bold">Pace: {d.pace} /km</p>
           <p className="mt-2">{d.detalhes || `Corra ${resumoDia(d)}, mantendo o ritmo constante do começo ao fim.`}</p>
         </section>

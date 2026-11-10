@@ -34,5 +34,7 @@ use the editor.
 - Student view lives under `/a/$token` (no login); professor view has no password by user choice. A plan becomes visible to the student only when copied to `plano_enviado` by ENVIAR.
 - Hermes evaluation, WhatsApp links and message text are pure functions in `src/lib/envios.ts`, covered by `src/test/envios.test.ts`.
 - WhatsApp sending is a client-side `wa.me` link (professor number fixed; student number per student).
+- Professor sending uses a normal target=_blank anchor; save the sent plan in the original tab without programmatic windows, because mobile browsers must open the actual WhatsApp URL directly.
+- Planned workout time is optional when reading legacy JSON plans, but required on new saves and sends; preserve existing records without inventing durations.
 - Bottom menu lives in `src/components/MenuBaixo.tsx`, mounted once in `__root.tsx`.
 - Reuse the student panel on home and the student-list route so both share registration state and the synchronous submission lock against duplicate taps.
