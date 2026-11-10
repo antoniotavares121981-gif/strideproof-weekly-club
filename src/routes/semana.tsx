@@ -77,7 +77,7 @@ function CartaoDia({ dia, hoje }: { dia: Dia; hoje: Date | null }) {
           </div>
           <p className="text-sm font-semibold text-card-foreground">{dia.meta.titulo}</p>
           <p className="text-sm text-muted-foreground">
-            {dia.meta.km} km · pace {dia.meta.pace}
+            {dia.meta.km} km · {dia.meta.tempo} · pace {dia.meta.pace}
           </p>
         </div>
         <StatusDia veredito={final?.resultado.veredito} />
