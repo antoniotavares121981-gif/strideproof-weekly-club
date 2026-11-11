@@ -38,3 +38,6 @@ use the editor.
 - Planned workout time is optional when reading legacy JSON plans, but required on new saves and sends; preserve existing records without inventing durations.
 - Bottom menu lives in `src/components/MenuBaixo.tsx`, mounted once in `__root.tsx`.
 - Reuse the student panel on home and the student-list route so both share registration state and the synchronous submission lock against duplicate taps.
+
+- Weekly plans always have 7 days (SEGUNDA..DOMINGO); an empty day means rest, and legacy 3-day plans are expanded via `completarSemana` on read. Why: professor must see every day.
+- Hermes evaluation is saved on the finished workout (`treinos_feitos.avaliacao`) when the professor requests it, so professor and student read the same text.

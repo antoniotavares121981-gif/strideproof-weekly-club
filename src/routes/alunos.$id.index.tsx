@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Send } from "lucide-react";
+import { CheckCircle2, Send, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { enviarPlano, salvarRascunho, verAluno } from "@/lib/assessoria.functions";
+import { avaliarTreino, enviarPlano, salvarRascunho, verAluno } from "@/lib/assessoria.functions";
 import { linkAluno } from "@/lib/envios";
-import { PLANO_PADRAO, mensagemEnvioAluno, planoValido, resumoDia, type DiaPlano } from "@/lib/treino";
+import { PLANO_PADRAO, diaVazio, mensagemEnvioAluno, planoValido, resumoDia, type DiaPlano } from "@/lib/treino";
 
 export const Route = createFileRoute("/alunos/$id/")({
   head: () => ({
@@ -35,13 +35,15 @@ function TelaAluno() {
   const ver = useServerFn(verAluno);
   const salvar = useServerFn(salvarRascunho);
   const enviar = useServerFn(enviarPlano);
+  const avaliar = useServerFn(avaliarTreino);
+  const [avaliando, setAvaliando] = useState<string | null>(null);
   const { data, isLoading } = useQuery({ queryKey: ["aluno", id], queryFn: () => ver({ data: { id } }) });
   const [plano, setPlano] = useState<DiaPlano[]>(PLANO_PADRAO);
   const [enviando, setEnviando] = useState(false);
   const envioEmCurso = useRef(false);
 
   useEffect(() => {
-    if (data) setPlano(data.rascunho.length === 3 ? data.rascunho : data.enviado ?? PLANO_PADRAO);
+    if (data) setPlano(data.rascunho.some((d) => !diaVazio(d)) ? data.rascunho : data.enviado ?? PLANO_PADRAO);
   }, [data]);
 
   if (isLoading) return <p className="p-6 text-muted-foreground">Carregando...</p>;
@@ -51,16 +53,26 @@ function TelaAluno() {
   const mudar = (i: number, campo: keyof DiaPlano, v: string) => setPlano(plano.map((d, j) => (j === i ? { ...d, [campo]: v } : d)));
 
   async function guardar() {
-    if (!planoValido(plano)) { toast.error("Preencha distância, tempo e ritmo (ex.: 4:59) dos 3 dias."); return; }
+    if (!planoValido(plano)) { toast.error("Nos dias com treino, preencha distância, tempo e ritmo (ex.: 4:59). Dia vazio = descanso."); return; }
     try {
       await salvar({ data: { id, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
       toast.success("Treino salvo. O aluno ainda não recebeu.");
     } catch { toast.error("Não deu pra salvar. Tente de novo."); }
   }
 
+  async function pedirAvaliacao(feitoId: string) {
+    setAvaliando(feitoId);
+    try {
+      await avaliar({ data: { id: feitoId } });
+      toast.success("Avaliação salva. O aluno já pode ver.");
+      qc.invalidateQueries({ queryKey: ["aluno", id] });
+    } catch { toast.error("Não deu pra avaliar. Tente de novo."); }
+    finally { setAvaliando(null); }
+  }
+
   async function mandar(e: React.MouseEvent<HTMLAnchorElement>) {
     if (envioEmCurso.current) { e.preventDefault(); return; }
-    if (!planoValido(plano)) { e.preventDefault(); toast.error("Preencha distância, tempo e ritmo (ex.: 4:59) dos 3 dias."); return; }
+    if (!planoValido(plano)) { e.preventDefault(); toast.error("Nos dias com treino, preencha distância, tempo e ritmo (ex.: 4:59). Dia vazio = descanso."); return; }
     // O link abre diretamente; a página original permanece aberta para salvar o plano.
     envioEmCurso.current = true;
     setEnviando(true);
@@ -84,7 +96,10 @@ function TelaAluno() {
           <h2 className="font-display text-3xl text-foreground">TREINO PLANEJADO DA SEMANA</h2>
           {plano.map((d, i) => (
             <div key={i} className="space-y-2 rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
-              <h3 className="font-display text-2xl">{d.dia}</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-2xl">{d.dia}</h3>
+                {diaVazio(d) ? <span className="rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">Descanso / Sem treino</span> : null}
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label htmlFor={`km${i}`} className="text-paper-muted">DISTÂNCIA (km)</Label>
@@ -113,7 +128,6 @@ function TelaAluno() {
           <h2 className="font-display text-3xl text-foreground">TREINOS FEITOS</h2>
           {feitos.length === 0 ? <p className="text-muted-foreground">Nenhum treino recebido ainda.</p> : null}
           {feitos.map((f) => {
-            const meta = data.enviado?.[f.dia_index];
             return (
               <div key={f.id} className="space-y-2">
                 <div className="rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
@@ -125,12 +139,10 @@ function TelaAluno() {
                   <p className="mt-2 font-semibold">{f.km.replace(".", ",")} km - {f.tempo}{f.pace ? ` - ${f.pace} /km` : ""}</p>
                   {f.foto ? <img src={f.foto} alt={`Foto do treino de ${f.dia}`} className="mt-3 w-full rounded-xl" loading="lazy" /> : <p className="mt-2 text-sm text-paper-muted">Sem foto.</p>}
                 </div>
-                {meta ? (
-                  <AvaliacaoHermes
-                    meta={{ tipo: "", km: Number(meta.km.replace(",", ".")), tempo: "", paceMin: meta.pace, paceMax: meta.pace, detalhes: meta.detalhes }}
-                    registro={{ km: f.km, tempo: f.tempo, pace: f.pace, em: f.created_at }}
-                  />
-                ) : null}
+                {f.avaliacao ? <AvaliacaoHermes avaliacao={f.avaliacao} /> : null}
+                <Button type="button" variant="outline" size="lg" className="w-full" disabled={avaliando === f.id} onClick={() => pedirAvaliacao(f.id)}>
+                  <Sparkles /> {avaliando === f.id ? "HERMES LENDO..." : f.avaliacao ? "AVALIAR DE NOVO COM HERMES" : "AVALIAR COM HERMES"}
+                </Button>
               </div>
             );
           })}

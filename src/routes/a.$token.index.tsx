@@ -3,6 +3,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, ChevronRight } from "lucide-react";
 
+import { AvaliacaoHermes } from "@/components/Hermes";
 import { treinoDoAluno } from "@/lib/assessoria.functions";
 import { resumoDia } from "@/lib/treino";
 
@@ -41,7 +42,7 @@ function MeuTreino() {
       ) : (
         <ul className="space-y-3">
           {data.plano.map((d, i) => {
-            const feito = data.feitos.some((f) => f.dia_index === i);
+            const feito = data.feitos.find((f) => f.dia === d.dia);
             return (
               <li key={i}>
                 <Link to="/a/$token/$dia" params={{ token, dia: String(i) }} className="flex items-center justify-between rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
@@ -52,6 +53,7 @@ function MeuTreino() {
                   </span>
                   <ChevronRight />
                 </Link>
+                {feito?.avaliacao ? <div className="mt-2"><AvaliacaoHermes avaliacao={feito.avaliacao} /></div> : null}
               </li>
             );
           })}
