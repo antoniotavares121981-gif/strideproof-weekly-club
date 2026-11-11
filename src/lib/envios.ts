@@ -70,7 +70,7 @@ export function formatarPace(seg: number): string {
   return `${Math.floor(r / 60)}:${String(r % 60).padStart(2, "0")}`;
 }
 
-export type Avaliacao = { acertos: string[]; erros: string[]; texto: string };
+export type Avaliacao = { acertos: string[]; erros: string[]; melhorar: string; texto: string };
 
 export function avaliarHermes(meta: Meta, reg: Registro): Avaliacao {
   const kmFeito = Number(reg.km.replace(",", "."));
@@ -120,5 +120,5 @@ export function avaliarHermes(meta: Meta, reg: Registro): Avaliacao {
     .filter(Boolean)
     .join("\n\n");
 
-  return { acertos, erros, texto };
+  return { acertos, erros, melhorar: conselho.replace(/^Conselho: /, ""), texto };
 }

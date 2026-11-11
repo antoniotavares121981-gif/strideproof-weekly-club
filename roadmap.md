@@ -4,4 +4,5 @@
 - [x] Verify saving and sending with tests and the student view.
 - [x] Add planned time to each day while preserving existing plans and records.
 - [x] Keep a large direct WhatsApp link at the end of the student file, with all three workout values.
-- [x] Test saving, reloading, student visibility and the direct WhatsApp message.
+- [x] Test saving, reloading, student visibility and the direct WhatsApp message.- [x] Show all 7 days (SEGUNDA..DOMINGO) in the weekly plan; empty day = Descanso.
+- [x] Save Hermes evaluation on the finished workout; show the same text to professor and student.
