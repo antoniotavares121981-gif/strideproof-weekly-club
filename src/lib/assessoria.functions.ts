@@ -1,15 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import type { DiaPlano, Feito } from "./treino";
+import { avaliarHermes } from "./envios";
+import { completarSemana, diaVazio, type AvaliacaoSalva, type DiaPlano, type Feito } from "./treino";
 
 const db = async () => (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 
 const diaSchema = z.object({
   dia: z.string().min(1).max(20),
-  km: z.string().min(1).max(10),
-  tempo: z.string().trim().min(1).max(20),
-  pace: z.string().regex(/^\d{1,2}:\d{2}$/, "Pace no formato 5:30"),
+  km: z.string().max(10),
+  tempo: z.string().trim().max(20),
+  pace: z.string().regex(/^(\d{1,2}:\d{2})?$/, "Pace no formato 5:30"),
   detalhes: z.string().max(500),
 });
 
@@ -50,14 +51,14 @@ export const verAluno = createServerFn({ method: "GET" })
     if (e2) throw new Error(e2.message);
     return {
       aluno: { id: a.id, nome: a.nome, whatsapp: a.whatsapp, objetivo: a.objetivo, token: a.token, enviado_em: a.enviado_em },
-      rascunho: a.rascunho as unknown as DiaPlano[],
-      enviado: a.plano_enviado as unknown as DiaPlano[] | null,
-      feitos: (f ?? []) as Feito[],
+      rascunho: completarSemana(a.rascunho as unknown as DiaPlano[]),
+      enviado: a.plano_enviado ? completarSemana(a.plano_enviado as unknown as DiaPlano[]) : null,
+      feitos: (f ?? []) as unknown as Feito[],
     };
   });
 
 export const salvarRascunho = createServerFn({ method: "POST" })
-  .validator((i: unknown) => z.object({ id: z.string().uuid(), plano: z.array(diaSchema).length(3) }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid(), plano: z.array(diaSchema).length(7) }).parse(i))
   .handler(async ({ data }) => {
     const { error } = await (await db()).from("alunos").update({ rascunho: data.plano }).eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -66,7 +67,7 @@ export const salvarRascunho = createServerFn({ method: "POST" })
 
 /** Só aqui o aluno passa a ver o treino. */
 export const enviarPlano = createServerFn({ method: "POST" })
-  .validator((i: unknown) => z.object({ id: z.string().uuid(), plano: z.array(diaSchema).length(3) }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid(), plano: z.array(diaSchema).length(7) }).parse(i))
   .handler(async ({ data }) => {
     const { error } = await (await db())
       .from("alunos")
@@ -87,8 +88,8 @@ export const treinoDoAluno = createServerFn({ method: "GET" })
     const { data: a, error } = await sb.from("alunos").select("id, nome, objetivo, plano_enviado").eq("token", data.token).maybeSingle();
     if (error) throw new Error(error.message);
     if (!a) return null;
-    const { data: f } = await sb.from("treinos_feitos").select("dia_index, created_at").eq("aluno_id", a.id).order("created_at", { ascending: false }).limit(20);
-    return { nome: a.nome, objetivo: a.objetivo, plano: (a.plano_enviado as unknown as DiaPlano[] | null) ?? null, feitos: f ?? [] };
+    const { data: f } = await sb.from("treinos_feitos").select("id, dia_index, dia, km, tempo, pace, created_at, avaliacao").eq("aluno_id", a.id).order("created_at", { ascending: false }).limit(20);
+    return { nome: a.nome, objetivo: a.objetivo, plano: a.plano_enviado ? completarSemana(a.plano_enviado as unknown as DiaPlano[]) : null, feitos: (f ?? []) as unknown as Omit<Feito, "foto">[] };
   });
 
 export const enviarFeito = createServerFn({ method: "POST" })
@@ -96,7 +97,7 @@ export const enviarFeito = createServerFn({ method: "POST" })
     z
       .object({
         token: tokenSchema,
-        dia_index: z.number().int().min(0).max(2),
+        dia_index: z.number().int().min(0).max(6),
         km: z.string().trim().min(1).max(10),
         tempo: z.string().trim().min(1).max(10),
         pace: z.string().trim().max(10),
@@ -107,7 +108,7 @@ export const enviarFeito = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const sb = await db();
     const { data: a } = await sb.from("alunos").select("id, plano_enviado").eq("token", data.token).maybeSingle();
-    const plano = a?.plano_enviado as unknown as DiaPlano[] | null;
+    const plano = a?.plano_enviado ? completarSemana(a.plano_enviado as unknown as DiaPlano[]) : null;
     const diaPlano = plano?.[data.dia_index];
     if (!a || !diaPlano) throw new Error("Treino não encontrado.");
     const { error } = await sb.from("treinos_feitos").insert({
@@ -115,4 +116,25 @@ export const enviarFeito = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+/** Professor aperta o Hermes: a avaliação fica salva no treino e o aluno vê a mesma. */
+export const avaliarTreino = createServerFn({ method: "POST" })
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data }) => {
+    const sb = await db();
+    const { data: f, error } = await sb.from("treinos_feitos").select("id, dia, km, tempo, pace, created_at, aluno_id").eq("id", data.id).maybeSingle();
+    if (error || !f) throw new Error("Treino não encontrado.");
+    const { data: a } = await sb.from("alunos").select("plano_enviado").eq("id", f.aluno_id).maybeSingle();
+    const meta = completarSemana(a?.plano_enviado as unknown as DiaPlano[] | null).find((d) => d.dia === f.dia);
+    const r = avaliarHermes(
+      !meta || diaVazio(meta)
+        ? { tipo: "Descanso", km: 0, tempo: "", paceMin: "", paceMax: "", detalhes: "" }
+        : { tipo: "", km: Number(meta.km.replace(",", ".")), tempo: meta.tempo ?? "", paceMin: meta.pace, paceMax: meta.pace, detalhes: meta.detalhes },
+      { km: f.km, tempo: f.tempo, pace: f.pace, em: f.created_at },
+    );
+    const avaliacao: AvaliacaoSalva = { ...r, em: new Date().toISOString() };
+    const { error: e2 } = await sb.from("treinos_feitos").update({ avaliacao: avaliacao as never }).eq("id", f.id);
+    if (e2) throw new Error(e2.message);
+    return avaliacao;
   });
