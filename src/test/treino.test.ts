@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { PLANO_PADRAO, mensagemEnvioAluno, planoValido } from "@/lib/treino";
+import { PLANO_PADRAO, completarSemana, resumoDia, mensagemEnvioAluno, planoValido } from "@/lib/treino";
 import { linkAluno } from "@/lib/envios";
 
 describe("treino da semana", () => {
-  const planoComTempo = PLANO_PADRAO.map((d, i) => ({ ...d, tempo: ["20min", "42min", "58min"][i] ?? "" }));
-  it("plano tem exatamente 3 dias com distância e pace", () => {
+  const T: Record<string, string> = { SEGUNDA: "20min", QUARTA: "42min", SEXTA: "58min" };
+  const planoComTempo = PLANO_PADRAO.map((d) => ({ ...d, tempo: T[d.dia] ?? "" }));
+  it("plano tem sempre 7 dias; dia vazio é descanso", () => {
     expect(planoValido(planoComTempo)).toBe(true);
     expect(planoValido(PLANO_PADRAO)).toBe(false);
-    expect(planoValido(PLANO_PADRAO.slice(0, 2))).toBe(false);
+    expect(planoValido(planoComTempo.slice(0, 3))).toBe(false);
+    expect(planoComTempo.map((d) => d.dia)).toEqual(["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"]);
     expect(planoValido(PLANO_PADRAO.map((d, i) => (i === 0 ? { ...d, pace: "rapido" } : d)))).toBe(false);
   });
   it("envia distância, tempo e ritmo dos três dias sem alterar a saudação", () => {
@@ -35,10 +37,16 @@ describe("treino da semana", () => {
     expect(mensagem.split("\n")[0]).toBe("Olá, José! Seu treino da semana chegou!");
   });
   it("mantém segunda quarta e sexta com as metas fornecidas", () => {
-    expect(PLANO_PADRAO.map(({ dia, km, pace }) => ({ dia, km, pace }))).toEqual([
+    expect(PLANO_PADRAO.filter((d) => d.km).map(({ dia, km, pace }) => ({ dia, km, pace }))).toEqual([
       { dia: "SEGUNDA", km: "4", pace: "4:59" },
       { dia: "QUARTA", km: "7", pace: "6:00" },
       { dia: "SEXTA", km: "10", pace: "5:50" },
     ]);
+  });
+  it("plano antigo de 3 dias vira semana de 7 com descanso", () => {
+    const s = completarSemana([{ dia: "QUARTA", km: "7", tempo: "40min", pace: "6:00", detalhes: "" }]);
+    expect(s).toHaveLength(7);
+    expect(s[2].km).toBe("7");
+    expect(resumoDia(s[1])).toBe("Descanso");
   });
 });

@@ -5,13 +5,14 @@ import { Camera, Send, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { AvaliacaoHermes } from "@/components/Hermes";
 import { TopoPagina } from "@/components/TopoPagina";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { enviarFeito, treinoDoAluno } from "@/lib/assessoria.functions";
 import { reduzirImagem } from "@/lib/imagem";
-import { resumoDia } from "@/lib/treino";
+import { diaVazio, resumoDia } from "@/lib/treino";
 
 export const Route = createFileRoute("/a/$token/$dia")({
   head: () => ({
@@ -74,11 +75,18 @@ function TreinoDia() {
       <div className="space-y-4 px-5">
         <section className="rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
           <p className="text-sm font-bold text-paper-muted">O QUE VOCÊ TEM QUE FAZER</p>
-          <p className="font-display text-4xl leading-none">{d.km.replace(".", ",")} KM</p>
-          {d.tempo ? <p className="text-xl font-bold">Tempo: {d.tempo}</p> : null}
-          <p className="text-xl font-bold">Pace: {d.pace} /km</p>
-          <p className="mt-2">{d.detalhes || `Corra ${resumoDia(d)}, mantendo o ritmo constante do começo ao fim.`}</p>
+          {diaVazio(d) ? (
+            <p className="font-display text-4xl leading-none">DESCANSO</p>
+          ) : (
+            <>
+              <p className="font-display text-4xl leading-none">{d.km.replace(".", ",")} KM</p>
+              {d.tempo ? <p className="text-xl font-bold">Tempo: {d.tempo}</p> : null}
+              <p className="text-xl font-bold">Pace: {d.pace} /km</p>
+              <p className="mt-2">{d.detalhes || `Corra ${resumoDia(d)}, mantendo o ritmo constante do começo ao fim.`}</p>
+            </>
+          )}
         </section>
+        {data.feitos.find((x) => x.dia === d.dia)?.avaliacao ? <AvaliacaoHermes avaliacao={data.feitos.find((x) => x.dia === d.dia)!.avaliacao!} /> : null}
 
         <form onSubmit={mandar} className="space-y-3 rounded-2xl bg-secondary p-4">
           <p className="font-display text-2xl text-secondary-foreground">REGISTRAR TREINO FEITO</p>
