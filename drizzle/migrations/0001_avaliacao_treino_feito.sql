@@ -1,0 +1,1 @@
+ALTER TABLE public.treinos_feitos ADD COLUMN IF NOT EXISTS avaliacao jsonb;

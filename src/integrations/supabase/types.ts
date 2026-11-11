@@ -53,6 +53,7 @@ export type Database = {
       treinos_feitos: {
         Row: {
           aluno_id: string
+          avaliacao: Json | null
           created_at: string
           dia: string
           dia_index: number
@@ -64,6 +65,7 @@ export type Database = {
         }
         Insert: {
           aluno_id: string
+          avaliacao?: Json | null
           created_at?: string
           dia: string
           dia_index: number
@@ -75,6 +77,7 @@ export type Database = {
         }
         Update: {
           aluno_id?: string
+          avaliacao?: Json | null
           created_at?: string
           dia?: string
           dia_index?: number
