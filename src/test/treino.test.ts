@@ -46,7 +46,7 @@ describe("treino da semana", () => {
   it("plano antigo de 3 dias vira semana de 7 com descanso", () => {
     const s = completarSemana([{ dia: "QUARTA", km: "7", tempo: "40min", pace: "6:00", detalhes: "" }]);
     expect(s).toHaveLength(7);
-    expect(s[2].km).toBe("7");
-    expect(resumoDia(s[1])).toBe("Descanso");
+    expect(s[2]?.km).toBe("7");
+    expect(resumoDia(s[1]!)).toBe("Descanso");
   });
 });
