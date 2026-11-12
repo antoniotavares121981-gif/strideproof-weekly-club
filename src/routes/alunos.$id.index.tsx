@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { avaliarTreino, enviarPlano, salvarRascunho, verAluno } from "@/lib/assessoria.functions";
 import { linkAluno } from "@/lib/envios";
-import { PLANO_PADRAO, diaVazio, mensagemEnvioAluno, planoValido, resumoDia, type DiaPlano } from "@/lib/treino";
+import { completarSemana, erroPlano, mensagemEnvioAluno, resumoDia, type DiaPlano } from "@/lib/treino";
 
 export const Route = createFileRoute("/alunos/$id/")({
   head: () => ({
@@ -38,22 +38,33 @@ function TelaAluno() {
   const avaliar = useServerFn(avaliarTreino);
   const [avaliando, setAvaliando] = useState<string | null>(null);
   const { data, isLoading } = useQuery({ queryKey: ["aluno", id], queryFn: () => ver({ data: { id } }) });
-  const [plano, setPlano] = useState<DiaPlano[]>(PLANO_PADRAO);
+  const [plano, setPlano] = useState<DiaPlano[]>(() => completarSemana([]));
+  const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const envioEmCurso = useRef(false);
 
   useEffect(() => {
-    if (data) setPlano(data.rascunho.some((d) => !diaVazio(d)) ? data.rascunho : data.enviado ?? PLANO_PADRAO);
+    if (data) setPlano(data.rascunho);
   }, [data]);
 
   if (isLoading) return <p className="p-6 text-muted-foreground">Carregando...</p>;
   if (!data) return <p className="p-6 text-muted-foreground">Aluno não encontrado.</p>;
   const { aluno, feitos } = data;
 
-  const mudar = (i: number, campo: keyof DiaPlano, v: string) => setPlano(plano.map((d, j) => (j === i ? { ...d, [campo]: v } : d)));
+  const mudar = (i: number, campo: keyof DiaPlano, v: string) => {
+    setErro(null);
+    setPlano((p) => p.map((d, j) => (j === i ? { ...d, [campo]: v } : d)));
+  };
+
+  function alternarDescanso(i: number) {
+    setErro(null);
+    setPlano((p) => p.map((d, j) => j === i ? { dia: d.dia, km: "", tempo: "", pace: "", detalhes: d.detalhes, descanso: !d.descanso } : d));
+  }
 
   async function guardar() {
-    if (!planoValido(plano)) { toast.error("Nos dias com treino, preencha distância, tempo e ritmo (ex.: 4:59). Dia vazio = descanso."); return; }
+    const aviso = erroPlano(plano);
+    setErro(aviso);
+    if (aviso) return;
     try {
       await salvar({ data: { id, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
       toast.success("Treino salvo. O aluno ainda não recebeu.");
@@ -72,7 +83,9 @@ function TelaAluno() {
 
   async function mandar(e: React.MouseEvent<HTMLAnchorElement>) {
     if (envioEmCurso.current) { e.preventDefault(); return; }
-    if (!planoValido(plano)) { e.preventDefault(); toast.error("Nos dias com treino, preencha distância, tempo e ritmo (ex.: 4:59). Dia vazio = descanso."); return; }
+    const aviso = erroPlano(plano);
+    setErro(aviso);
+    if (aviso) { e.preventDefault(); return; }
     // O link abre diretamente; a página original permanece aberta para salvar o plano.
     envioEmCurso.current = true;
     setEnviando(true);
@@ -98,26 +111,27 @@ function TelaAluno() {
             <div key={i} className="space-y-2 rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-2xl">{d.dia}</h3>
-                {diaVazio(d) ? <span className="rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">Descanso / Sem treino</span> : null}
+                <Button type="button" variant={d.descanso ? "secondary" : "outline"} size="sm" aria-label={`Descanso / Sem treino - ${d.dia}`} aria-pressed={Boolean(d.descanso)} onClick={() => alternarDescanso(i)}>Descanso / Sem treino</Button>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label htmlFor={`km${i}`} className="text-paper-muted">DISTÂNCIA (km)</Label>
-                  <Input id={`km${i}`} inputMode="decimal" placeholder="4" value={d.km} onChange={(e) => mudar(i, "km", e.target.value)} className="h-12 text-lg font-bold" />
+                  <Input id={`km${i}`} disabled={d.descanso} inputMode="decimal" placeholder="4" value={d.km} onChange={(e) => mudar(i, "km", e.target.value)} className="h-12 text-lg font-bold" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor={`tempo${i}`} className="text-paper-muted">TEMPO</Label>
-                  <Input id={`tempo${i}`} placeholder="20min" maxLength={20} value={d.tempo ?? ""} onChange={(e) => mudar(i, "tempo", e.target.value)} className="h-12 text-lg font-bold" />
+                  <Input id={`tempo${i}`} disabled={d.descanso} placeholder="20min" maxLength={20} value={d.tempo ?? ""} onChange={(e) => mudar(i, "tempo", e.target.value)} className="h-12 text-lg font-bold" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor={`pace${i}`} className="text-paper-muted">RITMO (/km)</Label>
-                  <Input id={`pace${i}`} placeholder="5:30" value={d.pace} onChange={(e) => mudar(i, "pace", e.target.value)} className="h-12 text-lg font-bold" />
+                  <Input id={`pace${i}`} disabled={d.descanso} placeholder="5:30" value={d.pace} onChange={(e) => mudar(i, "pace", e.target.value)} className="h-12 text-lg font-bold" />
                 </div>
               </div>
               <Textarea aria-label={`Detalhes do treino ${i + 1}`} maxLength={500} placeholder="Detalhes (opcional): aquecimento, tiros, dicas..." value={d.detalhes} onChange={(e) => mudar(i, "detalhes", e.target.value)} />
-              <p className="font-bold">{d.dia} - {resumoDia(d)}</p>
+              {resumoDia(d) ? <p className="font-bold">{d.dia} - {resumoDia(d)}</p> : null}
             </div>
           ))}
+          {erro ? <p role="alert" className="text-destructive">{erro}</p> : null}
           <Button type="button" variant="outline" size="lg" className="w-full" onClick={guardar}>SALVAR SEM ENVIAR</Button>
           <p className="text-sm text-muted-foreground">
             {aluno.enviado_em ? `Último envio: ${new Date(aluno.enviado_em).toLocaleString("pt-BR")}` : "O aluno ainda não recebeu nenhum treino."}
