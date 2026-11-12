@@ -72,7 +72,7 @@ export function formatarPace(seg: number): string {
 
 export type Avaliacao = { acertos: string[]; erros: string[]; melhorar: string; texto: string };
 
-export function avaliarHermes(meta: Meta, reg: Registro): Avaliacao {
+export function avaliarHermes(meta: Meta, reg: Registro, nome?: string): Avaliacao {
   const kmFeito = Number(reg.km.replace(",", "."));
   const tempoSeg = paraSegundos(reg.tempo) ?? 0;
   const minutos = Math.round(tempoSeg / 60);
@@ -112,10 +112,16 @@ export function avaliarHermes(meta: Meta, reg: Registro): Avaliacao {
   }`;
 
   const texto = [
+    nome ? `${nome}, leia esta avaliação com atenção. O treino precisa ser executado com disciplina, não apenas registrado. Compare seus números com a meta e leve ao professor qualquer dificuldade que apareceu durante a sessão.` : "Leia esta avaliação com atenção. O treino precisa ser executado com disciplina, não apenas registrado. Compare seus números com a meta e leve ao professor qualquer dificuldade que apareceu durante a sessão.",
     abertura,
+    `O tempo informado foi ${reg.tempo}, para ${km(kmFeito)} km, com pace médio de ${pace} /km. ${meta.tempo ? `O tempo planejado era ${meta.tempo}.` : "Este plano não informa uma meta de tempo; não vou inventar uma duração."} Esta análise usa os números registrados: eles não permitem afirmar se você parou, acelerou no final ou cumpriu tiros e aquecimento. Confira os detalhes da sessão e comunique ao professor o que aconteceu.`,
     acertos.length ? `Acertou: ${acertos.join(" ")}` : "",
     erros.length ? `Precisa ajustar: ${erros.join(" ")}` : "",
     conselho,
+    dentro ? "Muito bem por manter os números dentro das metas analisadas. Esse resultado merece reconhecimento, mas não é autorização para aumentar a carga sozinho. Repita o controle, mantenha a regularidade e continue registrando com precisão. Disciplina é cumprir o plano, inclusive quando a orientação pede um ritmo mais leve." : "Os pontos fora da meta precisam de correção, não de desculpas nem de pressa para compensar. Reveja distância e ritmo antes da próxima sessão, escolha um percurso adequado e acompanhe o esforço durante o treino. Se a meta estiver difícil ou os valores parecerem incompatíveis, converse com o professor para ajustar a orientação com segurança.",
+    "Antes da próxima corrida, prepare-se com caminhada leve e mobilidade, aumentando o esforço gradualmente conforme a orientação do professor. Respire naturalmente, sem prender o ar, e mantenha o esforço controlado. Beba água ao longo do dia, antes e depois da atividade, especialmente no calor, respeitando suas necessidades.",
+    "Ao terminar, desacelere aos poucos. Alongamentos, quando orientados, devem ser suaves e sem dor; cuide também do sono e da alimentação. Não force uma sessão diante de dor forte, tontura ou mal-estar: interrompa e procure orientação. Cobrança de disciplina não significa ignorar o corpo.",
+    "Cumpra a próxima sessão no dia combinado, sem acumular treinos perdidos e sem correr em dobro para compensar. Registre Km, Tempo e Pace com cuidado e anexe a foto quando possível. Leia as orientações, aplique as correções e mantenha o professor informado. A evolução exige constância, responsabilidade e recuperação, não uma corrida isolada feita a qualquer custo.",
   ]
     .filter(Boolean)
     .join("\n\n");

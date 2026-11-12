@@ -6,3 +6,8 @@
 - [x] Keep a large direct WhatsApp link at the end of the student file, with all three workout values.
 - [x] Test saving, reloading, student visibility and the direct WhatsApp message.- [x] Show all 7 days (SEGUNDA..DOMINGO) in the weekly plan; empty day = Descanso.
 - [x] Save Hermes evaluation on the finished workout; show the same text to professor and student.
+- [ ] Correct day-specific validation without persistent warnings.
+- [ ] Start new weeks blank; make rest an explicit professor choice and preserve existing plans.
+- [ ] Save and show only filled days or explicitly selected rest days, retaining all seven editor cards.
+- [ ] Expand Hermes welcome, reminders and evaluations with detailed, firm guidance in existing screens.
+- [ ] Verify saving, rest toggling, blank days and shared Hermes messages.

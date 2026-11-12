@@ -1,6 +1,13 @@
 import hermes from "@/assets/hermes.jpg";
 import type { AvaliacaoSalva } from "@/lib/treino";
 
+export function MensagemHermes({ texto }: { texto: string }) {
+  return <section aria-label="Mensagem do Hermes" className="border-l-2 border-primary py-3 pl-4 text-foreground">
+    <div className="mb-3 flex items-center gap-3"><img src={hermes} alt="Hermes, treinador" className="h-16 w-16 rounded-lg object-cover object-top" /><h2 className="font-display text-2xl">HERMES — ORIENTAÇÕES E COBRANÇA</h2></div>
+    <p className="whitespace-pre-line text-sm leading-relaxed">{texto}</p>
+  </section>;
+}
+
 /** Mesma avaliação para professor e aluno. */
 export function AvaliacaoHermes({ avaliacao }: { avaliacao: AvaliacaoSalva }) {
   const blocos = [
@@ -19,6 +26,7 @@ export function AvaliacaoHermes({ avaliacao }: { avaliacao: AvaliacaoSalva }) {
           </p>
         </div>
       </div>
+      <p className="mt-3 whitespace-pre-line text-sm leading-relaxed">{avaliacao.texto}</p>
       <dl className="mt-3 space-y-3 text-sm leading-relaxed">
         {blocos.map((b) => (
           <div key={b.t}>

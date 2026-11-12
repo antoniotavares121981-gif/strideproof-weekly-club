@@ -39,5 +39,6 @@ use the editor.
 - Bottom menu lives in `src/components/MenuBaixo.tsx`, mounted once in `__root.tsx`.
 - Reuse the student panel on home and the student-list route so both share registration state and the synchronous submission lock against duplicate taps.
 
-- Weekly plans always have 7 days (SEGUNDA..DOMINGO); an empty day means rest, and legacy 3-day plans are expanded via `completarSemana` on read. Why: professor must see every day.
+- Expand plans to seven editor days on read; persist only populated days or explicit JSON `descanso` choices and keep weekday indices stable in student links. Why: blank days must not imply rest or appear as prescriptions.
+- Hermes reminders use pure date-based functions with Bahia calendar dates and distinguish missing records from confirmed absences. Why: avoid inventing attendance or workout execution details.
 - Hermes evaluation is saved on the finished workout (`treinos_feitos.avaliacao`) when the professor requests it, so professor and student read the same text.
