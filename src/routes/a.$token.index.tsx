@@ -2,10 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import { AvaliacaoHermes } from "@/components/Hermes";
+import { AvaliacaoHermes, MensagemHermes } from "@/components/Hermes";
 import { treinoDoAluno } from "@/lib/assessoria.functions";
-import { resumoDia } from "@/lib/treino";
+import { diaVazio, resumoDia } from "@/lib/treino";
+import { mensagemHermes } from "@/lib/hermes-mensagens";
 
 export const Route = createFileRoute("/a/$token/")({
   head: () => ({
@@ -26,6 +28,8 @@ function MeuTreino() {
   const { token } = Route.useParams();
   const buscar = useServerFn(treinoDoAluno);
   const { data, isLoading } = useQuery({ queryKey: ["meu", token], queryFn: () => buscar({ data: { token } }) });
+  const [agora, setAgora] = useState<Date | null>(null);
+  useEffect(() => { setAgora(new Date()); }, []);
 
   if (isLoading) return <p className="p-6 text-muted-foreground">Carregando...</p>;
   if (!data) return <p className="p-6 text-muted-foreground">Link inválido. Peça um novo link ao professor.</p>;
@@ -37,11 +41,13 @@ function MeuTreino() {
         <h1 className="text-5xl leading-none text-foreground">OLÁ, {data.nome.toUpperCase()}</h1>
         {data.objetivo ? <p className="text-muted-foreground">Objetivo: {data.objetivo}</p> : null}
       </div>
+      {data.plano && agora ? <MensagemHermes texto={mensagemHermes(data.nome, data.plano, data.feitos, data.enviado_em, agora)} /> : null}
       {!data.plano ? (
         <p className="rounded-2xl bg-secondary p-4 text-secondary-foreground">O professor ainda não mandou seu treino. Aguarde.</p>
       ) : (
         <ul className="space-y-3">
           {data.plano.map((d, i) => {
+            if (!d.descanso && diaVazio(d)) return null;
             const feito = data.feitos.find((f) => f.dia === d.dia);
             return (
               <li key={i}>

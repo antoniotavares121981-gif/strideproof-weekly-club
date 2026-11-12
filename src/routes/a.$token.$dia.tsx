@@ -44,7 +44,8 @@ function TreinoDia() {
 
   if (isLoading) return <p className="p-6 text-muted-foreground">Carregando...</p>;
   const d = data?.plano?.[i];
-  if (!data || !d) return <p className="p-6 text-muted-foreground">Treino não encontrado.</p>;
+  if (!data || !d || (!d.descanso && diaVazio(d))) return <p className="p-6 text-muted-foreground">Treino não encontrado.</p>;
+  const avaliacao = data.feitos.find((x) => x.dia === d.dia)?.avaliacao;
 
   async function escolherFoto(e: React.ChangeEvent<HTMLInputElement>) {
     const a = e.target.files?.[0];
@@ -75,7 +76,7 @@ function TreinoDia() {
       <div className="space-y-4 px-5">
         <section className="rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
           <p className="text-sm font-bold text-paper-muted">O QUE VOCÊ TEM QUE FAZER</p>
-          {diaVazio(d) ? (
+          {d.descanso ? (
             <p className="font-display text-4xl leading-none">DESCANSO</p>
           ) : (
             <>
@@ -86,9 +87,9 @@ function TreinoDia() {
             </>
           )}
         </section>
-        {data.feitos.find((x) => x.dia === d.dia)?.avaliacao ? <AvaliacaoHermes avaliacao={data.feitos.find((x) => x.dia === d.dia)!.avaliacao!} /> : null}
+        {avaliacao ? <AvaliacaoHermes avaliacao={avaliacao} /> : null}
 
-        <form onSubmit={mandar} className="space-y-3 rounded-2xl bg-secondary p-4">
+        {!d.descanso ? <form onSubmit={mandar} className="space-y-3 rounded-2xl bg-secondary p-4">
           <p className="font-display text-2xl text-secondary-foreground">REGISTRAR TREINO FEITO</p>
           <div className="grid grid-cols-3 gap-2">
             {(["km", "tempo", "pace"] as const).map((c) => (
@@ -121,7 +122,7 @@ function TreinoDia() {
           <Button type="submit" variant="whatsapp" size="xl" disabled={enviando}>
             <Send className="h-6 w-6" /> ENVIAR PARA O PROFESSOR
           </Button>
-        </form>
+        </form> : null}
       </div>
     </main>
   );

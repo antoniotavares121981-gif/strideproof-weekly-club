@@ -131,13 +131,14 @@ export const avaliarTreino = createServerFn({ method: "POST" })
     const sb = await db();
     const { data: f, error } = await sb.from("treinos_feitos").select("id, dia, km, tempo, pace, created_at, aluno_id").eq("id", data.id).maybeSingle();
     if (error || !f) throw new Error("Treino não encontrado.");
-    const { data: a } = await sb.from("alunos").select("plano_enviado").eq("id", f.aluno_id).maybeSingle();
+    const { data: a } = await sb.from("alunos").select("plano_enviado, nome").eq("id", f.aluno_id).maybeSingle();
     const meta = completarSemana(a?.plano_enviado as unknown as DiaPlano[] | null).find((d) => d.dia === f.dia);
     const r = avaliarHermes(
       !meta || diaVazio(meta)
         ? { tipo: "Descanso", km: 0, tempo: "", paceMin: "", paceMax: "", detalhes: "" }
         : { tipo: "", km: Number(meta.km.replace(",", ".")), tempo: meta.tempo ?? "", paceMin: meta.pace, paceMax: meta.pace, detalhes: meta.detalhes },
       { km: f.km, tempo: f.tempo, pace: f.pace, em: f.created_at },
+      a?.nome,
     );
     const avaliacao: AvaliacaoSalva = { ...r, em: new Date().toISOString() };
     const { error: e2 } = await sb.from("treinos_feitos").update({ avaliacao: avaliacao as never }).eq("id", f.id);
