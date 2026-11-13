@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Send, Sparkles } from "lucide-react";
+import { CheckCircle2, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { avaliarTreino, enviarPlano, salvarRascunho, verAluno } from "@/lib/assessoria.functions";
+import { enviarPlano, salvarRascunho, verAluno } from "@/lib/assessoria.functions";
 import { linkAluno } from "@/lib/envios";
 import { completarSemana, erroPlano, mensagemEnvioAluno, resumoDia, type DiaPlano } from "@/lib/treino";
 
@@ -35,17 +35,16 @@ function TelaAluno() {
   const ver = useServerFn(verAluno);
   const salvar = useServerFn(salvarRascunho);
   const enviar = useServerFn(enviarPlano);
-  const avaliar = useServerFn(avaliarTreino);
-  const [avaliando, setAvaliando] = useState<string | null>(null);
-  const { data, isLoading } = useQuery({ queryKey: ["aluno", id], queryFn: () => ver({ data: { id } }) });
+  const { data, isLoading } = useQuery({ queryKey: ["aluno", id], queryFn: () => ver({ data: { id } }), refetchInterval: 5000 });
+  const rascunho = data?.rascunho;
   const [plano, setPlano] = useState<DiaPlano[]>(() => completarSemana([]));
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const envioEmCurso = useRef(false);
 
   useEffect(() => {
-    if (data) setPlano(data.rascunho);
-  }, [data]);
+    if (rascunho) setPlano(rascunho);
+  }, [rascunho]);
 
   if (isLoading) return <p className="p-6 text-muted-foreground">Carregando...</p>;
   if (!data) return <p className="p-6 text-muted-foreground">Aluno não encontrado.</p>;
@@ -69,16 +68,6 @@ function TelaAluno() {
       await salvar({ data: { id, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
       toast.success("Treino salvo. O aluno ainda não recebeu.");
     } catch { toast.error("Não deu pra salvar. Tente de novo."); }
-  }
-
-  async function pedirAvaliacao(feitoId: string) {
-    setAvaliando(feitoId);
-    try {
-      await avaliar({ data: { id: feitoId } });
-      toast.success("Avaliação salva. O aluno já pode ver.");
-      qc.invalidateQueries({ queryKey: ["aluno", id] });
-    } catch { toast.error("Não deu pra avaliar. Tente de novo."); }
-    finally { setAvaliando(null); }
   }
 
   async function mandar(e: React.MouseEvent<HTMLAnchorElement>) {
@@ -154,9 +143,6 @@ function TelaAluno() {
                   {f.foto ? <img src={f.foto} alt={`Foto do treino de ${f.dia}`} className="mt-3 w-full rounded-xl" loading="lazy" /> : <p className="mt-2 text-sm text-paper-muted">Sem foto.</p>}
                 </div>
                 {f.avaliacao ? <AvaliacaoHermes avaliacao={f.avaliacao} /> : null}
-                <Button type="button" variant="outline" size="lg" className="w-full" disabled={avaliando === f.id} onClick={() => pedirAvaliacao(f.id)}>
-                  <Sparkles /> {avaliando === f.id ? "HERMES LENDO..." : f.avaliacao ? "AVALIAR DE NOVO COM HERMES" : "AVALIAR COM HERMES"}
-                </Button>
               </div>
             );
           })}
