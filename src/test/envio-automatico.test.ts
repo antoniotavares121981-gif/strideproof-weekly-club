@@ -35,7 +35,7 @@ describe("envio com Hermes automático", () => {
       aluno_id: "aluno", dia: "QUARTA", dia_index: 2, km: "7", tempo: "43min", pace: "6:08", avaliacao: resposta.avaliacao,
     }));
     expect(resposta.avaliacao.erros).toEqual([]);
-    expect(resposta.avaliacao.texto).toContain("43 minutos correndo 7 km com pace médio de 6:08 /km");
+    expect(resposta.avaliacao.texto).toContain("✅ Fez 7 km em 43 min, pace 6:08.");
   });
 
   it("não informa sucesso se o treino não puder ser salvo", async () => {

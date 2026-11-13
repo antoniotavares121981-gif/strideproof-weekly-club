@@ -72,59 +72,39 @@ export function formatarPace(seg: number): string {
 
 export type Avaliacao = { acertos: string[]; erros: string[]; melhorar: string; texto: string };
 
-export function avaliarHermes(meta: Meta, reg: Registro, nome?: string): Avaliacao {
+/** Avaliação curta: no máximo 2 frases. Pace sempre = tempo total / distância. */
+export function avaliarHermes(meta: Meta, reg: Registro, _nome?: string): Avaliacao {
   const kmFeito = Number(reg.km.replace(",", "."));
   const tempoSeg = paraSegundos(reg.tempo) ?? 0;
   const minutos = Math.round(tempoSeg / 60);
-  const paceSeg = paraSegundos(reg.pace) ?? (kmFeito > 0 ? tempoSeg / kmFeito : 0);
+  const paceSeg = kmFeito > 0 && tempoSeg > 0 ? tempoSeg / kmFeito : (paraSegundos(reg.pace) ?? 0);
   const pace = formatarPace(paceSeg);
   const acertos: string[] = [];
   const erros: string[] = [];
+  const faixa = meta.paceMin && meta.paceMax && meta.paceMin !== meta.paceMax ? `faixa de ${meta.paceMin} a ${meta.paceMax}` : meta.paceMin || meta.paceMax ? `pedido de ${meta.paceMin || meta.paceMax}` : "";
 
-  if (meta.km === 0) {
-    erros.push("O dia era de descanso e você correu.");
-  } else {
+  if (meta.km === 0) erros.push("Era dia de descanso.");
+  else {
     const dif = (kmFeito - meta.km) / meta.km;
-    if (Math.abs(dif) <= 0.1) acertos.push(`Distância dentro do planejado (${km(meta.km)} km).`);
-    else if (dif < 0) erros.push(`Correu ${km(kmFeito)} km, abaixo dos ${km(meta.km)} km planejados.`);
-    else erros.push(`Correu ${km(kmFeito)} km, acima dos ${km(meta.km)} km planejados.`);
-
-    const min = paraSegundos(meta.paceMin) ?? 0;
-    const max = paraSegundos(meta.paceMax) ?? 0;
-    if (paceSeg >= min - 5 && paceSeg <= max + 5) acertos.push(`Pace médio dentro da faixa de ${meta.paceMin} a ${meta.paceMax} /km.`);
-    else if (paceSeg < min) erros.push(`Pace de ${pace} /km, mais rápido que a faixa de ${meta.paceMin} a ${meta.paceMax} /km.`);
-    else erros.push(`Pace de ${pace} /km, mais lento que a faixa de ${meta.paceMin} a ${meta.paceMax} /km.`);
+    if (Math.abs(dif) <= 0.1) acertos.push("Distância certa.");
+    else erros.push(`Distância ${dif < 0 ? "abaixo" : "acima"} dos ${km(meta.km)} km pedidos.`);
+    if (faixa) {
+      const min = paraSegundos(meta.paceMin || meta.paceMax) ?? 0;
+      const max = paraSegundos(meta.paceMax || meta.paceMin) ?? 0;
+      if (paceSeg >= min - 5 && paceSeg <= max + 5) acertos.push("Pace certo.");
+      else if (paceSeg < min) erros.push(`Pace ficou mais rápido que o ${faixa}.`);
+      else erros.push(`Pace ficou acima do ${faixa}.`);
+    }
   }
 
-  const dentro = erros.length === 0;
-  const conselho = dentro
-    ? "Conselho: mantenha essa regularidade e cuide da recuperação para o próximo treino."
-    : erros.some((e) => e.includes("rápido"))
-      ? "Conselho: segure o ritmo no começo. Correr mais forte que o planejado aumenta o risco de lesão."
-      : erros.some((e) => e.includes("descanso"))
-        ? "Conselho: respeite o descanso. É nele que o corpo evolui."
-        : "Conselho: siga a faixa de pace e a distância do plano para tirar o máximo do treino.";
-
-  const abertura = `Aqui na ${NOME_APP}, vimos que você concluiu seu treino de ${minutos} minutos correndo ${km(kmFeito)} km com pace médio de ${pace} /km, ${
-    dentro
-      ? "mantendo seus quilômetros constantes dentro da faixa que o professor planejou."
-      : "mas alguns pontos ficaram fora do que o professor planejou."
-  }`;
-
-  const texto = [
-    nome ? `${nome}, leia esta avaliação com atenção. O treino precisa ser executado com disciplina, não apenas registrado. Compare seus números com a meta e leve ao professor qualquer dificuldade que apareceu durante a sessão.` : "Leia esta avaliação com atenção. O treino precisa ser executado com disciplina, não apenas registrado. Compare seus números com a meta e leve ao professor qualquer dificuldade que apareceu durante a sessão.",
-    abertura,
-    `O tempo informado foi ${reg.tempo}, para ${km(kmFeito)} km, com pace médio de ${pace} /km. ${meta.tempo ? `O tempo planejado era ${meta.tempo}.` : "Este plano não informa uma meta de tempo; não vou inventar uma duração."} Esta análise usa os números registrados: eles não permitem afirmar se você parou, acelerou no final ou cumpriu tiros e aquecimento. Confira os detalhes da sessão e comunique ao professor o que aconteceu.`,
-    acertos.length ? `Acertou: ${acertos.join(" ")}` : "",
-    erros.length ? `Precisa ajustar: ${erros.join(" ")}` : "",
-    conselho,
-    dentro ? "Muito bem por manter os números dentro das metas analisadas. Esse resultado merece reconhecimento, mas não é autorização para aumentar a carga sozinho. Repita o controle, mantenha a regularidade e continue registrando com precisão. Disciplina é cumprir o plano, inclusive quando a orientação pede um ritmo mais leve." : "Os pontos fora da meta precisam de correção, não de desculpas nem de pressa para compensar. Reveja distância e ritmo antes da próxima sessão, escolha um percurso adequado e acompanhe o esforço durante o treino. Se a meta estiver difícil ou os valores parecerem incompatíveis, converse com o professor para ajustar a orientação com segurança.",
-    "Antes da próxima corrida, prepare-se com caminhada leve e mobilidade, aumentando o esforço gradualmente conforme a orientação do professor. Respire naturalmente, sem prender o ar, e mantenha o esforço controlado. Beba água ao longo do dia, antes e depois da atividade, especialmente no calor, respeitando suas necessidades.",
-    "Ao terminar, desacelere aos poucos. Alongamentos, quando orientados, devem ser suaves e sem dor; cuide também do sono e da alimentação. Não force uma sessão diante de dor forte, tontura ou mal-estar: interrompa e procure orientação. Cobrança de disciplina não significa ignorar o corpo.",
-    "Cumpra a próxima sessão no dia combinado, sem acumular treinos perdidos e sem correr em dobro para compensar. Registre Km, Tempo e Pace com cuidado e anexe a foto quando possível. Leia as orientações, aplique as correções e mantenha o professor informado. A evolução exige constância, responsabilidade e recuperação, não uma corrida isolada feita a qualquer custo.",
-  ]
-    .filter(Boolean)
-    .join("\n\n");
-
-  return { acertos, erros, melhorar: conselho.replace(/^Conselho: /, ""), texto };
+  const ok = erros.length === 0;
+  const melhorar = ok
+    ? "Mantém assim no próximo."
+    : meta.km === 0 ? "Respeita o descanso no próximo."
+    : erros.some((e) => e.includes("rápido")) ? "Segura mais no próximo."
+    : erros.some((e) => e.includes("acima do")) ? "Acelera um pouco no próximo."
+    : "Segue o que foi pedido no próximo.";
+  const resultado = `Fez ${km(kmFeito)} km em ${minutos} min, pace ${pace}.`;
+  const texto = `${ok ? "✅" : "⚠️"} ${resultado} ${ok ? "Dentro do pedido, mantém assim no próximo." : `${erros.join(" ")} ${melhorar}`}`;
+  return { acertos, erros, melhorar, texto };
 }
