@@ -12,4 +12,4 @@
 - [ ] Expand Hermes welcome, reminders and evaluations with detailed, firm guidance in existing screens.
 - [ ] Verify saving, rest toggling, blank days and shared Hermes messages.
 
-- [ ] Automatically save and share Hermes evaluation on student submission; remove manual evaluation and verify both views.
+- [x] Automatically save and share Hermes evaluation on student submission; remove manual evaluation and verify both views.
