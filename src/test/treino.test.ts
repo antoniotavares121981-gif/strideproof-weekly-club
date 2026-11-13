@@ -50,3 +50,15 @@ describe("treino da semana", () => {
     expect(resumoDia(s[1]!)).toBe("Descanso");
   });
 });
+
+import { mensagemEnvioAluno as msgHermes } from "@/lib/treino";
+describe("WhatsApp do professor com Hermes", () => {
+  it("inclui a avaliação salva", () => {
+    const m = msgHermes("Ana", "x", [{ dia: "SEGUNDA", km: "4", tempo: "20min", pace: "4:59", detalhes: "" }], [
+      { dia: "SEGUNDA", avaliacao: { acertos: ["Ritmo certo."], erros: ["Correu rápido no final."], melhorar: "Segure o ritmo.", texto: "", em: "" } },
+    ]);
+    expect(m.startsWith("Olá, Ana! Seu treino da semana chegou!")).toBe(true);
+    expect(m).toContain("AVALIAÇÃO DO HERMES");
+    expect(m).toContain("O que você errou: Correu rápido no final.");
+  });
+});

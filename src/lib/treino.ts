@@ -53,9 +53,20 @@ export function resumoDia(d: DiaPlano): string {
   return `${d.km.replace(".", ",")} km${d.tempo?.trim() ? ` - ${d.tempo.trim()}` : ""} a ${d.pace} /km`;
 }
 
-export function mensagemEnvioAluno(nome: string, link: string, plano: DiaPlano[]): string {
+export function mensagemEnvioAluno(nome: string, link: string, plano: DiaPlano[], feitos: Pick<Feito, "dia" | "avaliacao">[] = []): string {
   const linhas = [`Olá, ${nome}! Seu treino da semana chegou!`, ""];
   for (const d of diasPreenchidos(plano)) linhas.push(`*${d.dia}* - ${resumoDia(d)}`);
+  const avaliados = feitos.filter((f) => f.avaliacao);
+  if (avaliados.length) {
+    linhas.push("", "*AVALIAÇÃO DO HERMES*");
+    for (const f of avaliados) {
+      const a = f.avaliacao!;
+      linhas.push("", `*${f.dia}*`);
+      if (a.acertos.length) linhas.push(`O que você acertou: ${a.acertos.join(" ")}`);
+      if (a.erros.length) linhas.push(`O que você errou: ${a.erros.join(" ")}`);
+      if (a.melhorar) linhas.push(`O que melhorar: ${a.melhorar}`);
+    }
+  }
   linhas.push("", "Abra seu treino e registre o que fez:", link, "", `Duvidas: professor ${PROFESSOR_PADRAO}`);
   return linhas.join("\n");
 }
