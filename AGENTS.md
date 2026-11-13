@@ -41,4 +41,4 @@ use the editor.
 
 - Expand plans to seven editor days on read; persist only populated days or explicit JSON `descanso` choices and keep weekday indices stable in student links. Why: blank days must not imply rest or appear as prescriptions.
 - Hermes reminders use pure date-based functions with Bahia calendar dates and distinguish missing records from confirmed absences. Why: avoid inventing attendance or workout execution details.
-- Hermes evaluation is saved on the finished workout (`treinos_feitos.avaliacao`) when the professor requests it, so professor and student read the same text.
+- Workout submission saves the automatic Hermes evaluation with the finished workout in one insert and returns it to the student; professor details poll for new records without resetting unchanged drafts. Why: both views receive the same evaluation without manual actions or partial saves.

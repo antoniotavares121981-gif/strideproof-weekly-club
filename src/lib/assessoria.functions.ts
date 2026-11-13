@@ -113,35 +113,24 @@ export const enviarFeito = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const sb = await db();
-    const { data: a } = await sb.from("alunos").select("id, plano_enviado").eq("token", data.token).maybeSingle();
+    const { data: a } = await sb.from("alunos").select("id, nome, plano_enviado").eq("token", data.token).maybeSingle();
     const plano = a?.plano_enviado ? completarSemana(a.plano_enviado as unknown as DiaPlano[]) : null;
     const diaPlano = plano?.[data.dia_index];
     if (!a || !diaPlano || diaPlano.descanso || diaVazio(diaPlano)) throw new Error("Treino não encontrado.");
+    const em = new Date().toISOString();
+    const avaliacao: AvaliacaoSalva = {
+      ...avaliarHermes(
+        { tipo: "", km: Number(diaPlano.km.replace(",", ".")), tempo: diaPlano.tempo ?? "", paceMin: diaPlano.pace, paceMax: diaPlano.pace, detalhes: diaPlano.detalhes },
+        { km: data.km, tempo: data.tempo, pace: data.pace, em },
+        a.nome,
+      ),
+      em,
+    };
+    // Uma gravação disponibiliza o treino e a mesma avaliação nos dois lados.
     const { error } = await sb.from("treinos_feitos").insert({
       aluno_id: a.id, dia_index: data.dia_index, dia: diaPlano.dia, km: data.km, tempo: data.tempo, pace: data.pace, foto: data.foto,
+      avaliacao: avaliacao as never,
     });
     if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-/** Professor aperta o Hermes: a avaliação fica salva no treino e o aluno vê a mesma. */
-export const avaliarTreino = createServerFn({ method: "POST" })
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data }) => {
-    const sb = await db();
-    const { data: f, error } = await sb.from("treinos_feitos").select("id, dia, km, tempo, pace, created_at, aluno_id").eq("id", data.id).maybeSingle();
-    if (error || !f) throw new Error("Treino não encontrado.");
-    const { data: a } = await sb.from("alunos").select("plano_enviado, nome").eq("id", f.aluno_id).maybeSingle();
-    const meta = completarSemana(a?.plano_enviado as unknown as DiaPlano[] | null).find((d) => d.dia === f.dia);
-    const r = avaliarHermes(
-      !meta || diaVazio(meta)
-        ? { tipo: "Descanso", km: 0, tempo: "", paceMin: "", paceMax: "", detalhes: "" }
-        : { tipo: "", km: Number(meta.km.replace(",", ".")), tempo: meta.tempo ?? "", paceMin: meta.pace, paceMax: meta.pace, detalhes: meta.detalhes },
-      { km: f.km, tempo: f.tempo, pace: f.pace, em: f.created_at },
-      a?.nome,
-    );
-    const avaliacao: AvaliacaoSalva = { ...r, em: new Date().toISOString() };
-    const { error: e2 } = await sb.from("treinos_feitos").update({ avaliacao: avaliacao as never }).eq("id", f.id);
-    if (e2) throw new Error(e2.message);
-    return avaliacao;
+    return { ok: true, avaliacao };
   });

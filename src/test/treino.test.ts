@@ -43,11 +43,14 @@ describe("treino da semana", () => {
       { dia: "SEXTA", km: "10", pace: "5:50" },
     ]);
   });
-  it("plano antigo de 3 dias vira semana de 7 com descanso", () => {
+  it("plano antigo de 3 dias vira semana de 7 sem inventar descanso", () => {
     const s = completarSemana([{ dia: "QUARTA", km: "7", tempo: "40min", pace: "6:00", detalhes: "" }]);
     expect(s).toHaveLength(7);
     expect(s[2]?.km).toBe("7");
-    expect(resumoDia(s[1]!)).toBe("Descanso");
+    const terca = s[1];
+    if (!terca) throw new Error("Terça não encontrada");
+    expect(resumoDia(terca)).toBe("");
+    expect(terca.descanso).toBeUndefined();
   });
 });
 
