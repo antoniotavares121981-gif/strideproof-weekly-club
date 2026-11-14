@@ -1,11 +1,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Send } from "lucide-react";
+import { CalendarDays, CheckCircle2, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { AvaliacaoHermes } from "@/components/Hermes";
+import { ControleSemana } from "@/components/Semana";
+import { ExcluirTreino } from "@/components/ExcluirTreino";
+import { RevisaoHermes } from "@/components/RevisaoHermes";
 import { BotaoVoltar, TopoPagina } from "@/components/TopoPagina";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,11 +33,13 @@ export const Route = createFileRoute("/alunos/$id/")({
 
 function TelaAluno() {
   const { id } = Route.useParams();
+  const [semana, setSemana] = useState<string | undefined>();
+  const [tema, setTema] = useState("");
   const qc = useQueryClient();
   const ver = useServerFn(verAluno);
   const salvar = useServerFn(salvarRascunho);
   const enviar = useServerFn(enviarPlano);
-  const { data, isLoading } = useQuery({ queryKey: ["aluno", id], queryFn: () => ver({ data: { id } }), refetchInterval: 5000 });
+  const { data, isLoading } = useQuery({ queryKey: ["aluno", id, semana], queryFn: () => ver({ data: { id, semana } }), refetchInterval: 5000 });
   const rascunho = data?.rascunho;
   const [plano, setPlano] = useState<DiaPlano[]>(() => completarSemana([]));
   const [erro, setErro] = useState<string | null>(null);
@@ -45,6 +49,8 @@ function TelaAluno() {
   useEffect(() => {
     if (rascunho) setPlano(rascunho);
   }, [rascunho]);
+  useEffect(() => { if (data) setTema(data.tema); }, [data?.tema, data?.semana]);
+  function escolherSemana(s: string) { setErro(null); setSemana(s); }
 
   if (isLoading) return <p className="p-6 text-muted-foreground">Carregando...</p>;
   if (!data) return <p className="p-6 text-muted-foreground">Aluno não encontrado.</p>;
@@ -65,7 +71,7 @@ function TelaAluno() {
     setErro(aviso);
     if (aviso) return;
     try {
-      await salvar({ data: { id, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
+      await salvar({ data: { id, semana: data?.semana, tema, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
       toast.success("Treino salvo. O aluno ainda não recebeu.");
     } catch { toast.error("Não deu pra salvar. Tente de novo."); }
   }
@@ -79,7 +85,7 @@ function TelaAluno() {
     envioEmCurso.current = true;
     setEnviando(true);
     try {
-      await enviar({ data: { id, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
+      await enviar({ data: { id, semana: data?.semana, tema, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
       toast.success("Treino disponível no link do aluno. Confirme o envio no WhatsApp.");
       qc.invalidateQueries({ queryKey: ["aluno", id] });
     } catch {
@@ -94,7 +100,11 @@ function TelaAluno() {
     <main className="mx-auto max-w-md">
       <TopoPagina voltar={<BotaoVoltar to="/alunos" />} titulo={aluno.nome.toUpperCase()} subtitulo={`${aluno.whatsapp}${aluno.objetivo ? ` - Objetivo: ${aluno.objetivo}` : ""}`} />
       <div className="space-y-5 px-5">
-        <section className="space-y-3">
+        <Button variant="hero" size="xl" className="h-auto min-h-20 w-full whitespace-normal text-2xl" onClick={() => document.getElementById("plano-semana")?.scrollIntoView({ behavior: "smooth" })}><CalendarDays /> 📅 VER TREINO DA SEMANA</Button>
+        <ControleSemana semana={data.semana} atual={data.atual} mudar={escolherSemana} historico={data.historico} />
+        <ExcluirTreino id={id} semana={data.semana} limpar />
+        <div className="space-y-2"><Label htmlFor="tema" className="font-display text-3xl">🎯 TEMA DA SEMANA</Label><Input id="tema" value={tema} maxLength={120} onChange={(e) => setTema(e.target.value)} className="h-16 text-xl" placeholder="Semana de Base" /></div>
+        <section id="plano-semana" className="space-y-3">
           <h2 className="font-display text-3xl text-foreground">TREINO PLANEJADO DA SEMANA</h2>
           {plano.map((d, i) => (
             <div key={i} className="space-y-2 rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
@@ -142,7 +152,8 @@ function TelaAluno() {
                   <p className="mt-2 font-semibold">{f.km.replace(".", ",")} km - {f.tempo}{f.pace ? ` - ${f.pace} /km` : ""}</p>
                   {f.foto ? <img src={f.foto} alt={`Foto do treino de ${f.dia}`} className="mt-3 w-full rounded-xl" loading="lazy" /> : <p className="mt-2 text-sm text-paper-muted">Sem foto.</p>}
                 </div>
-                {f.avaliacao ? <AvaliacaoHermes avaliacao={f.avaliacao} /> : null}
+                <RevisaoHermes feito={f} />
+                 <ExcluirTreino id={f.id} />
               </div>
             );
           })}

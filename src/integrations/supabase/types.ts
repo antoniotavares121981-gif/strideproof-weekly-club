@@ -50,6 +50,44 @@ export type Database = {
         }
         Relationships: []
       }
+      semanas_aluno: {
+        Row: {
+          aluno_id: string
+          enviado_em: string | null
+          id: string
+          plano_enviado: Json | null
+          rascunho: Json
+          semana: string
+          tema: string
+        }
+        Insert: {
+          aluno_id: string
+          enviado_em?: string | null
+          id?: string
+          plano_enviado?: Json | null
+          rascunho?: Json
+          semana: string
+          tema?: string
+        }
+        Update: {
+          aluno_id?: string
+          enviado_em?: string | null
+          id?: string
+          plano_enviado?: Json | null
+          rascunho?: Json
+          semana?: string
+          tema?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "semanas_aluno_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       treinos_feitos: {
         Row: {
           aluno_id: string
@@ -57,10 +95,14 @@ export type Database = {
           created_at: string
           dia: string
           dia_index: number
+          envio_cancelado: boolean
           foto: string | null
           id: string
           km: string
+          liberar_em: string | null
           pace: string
+          revisado_em: string | null
+          semana: string
           tempo: string
         }
         Insert: {
@@ -69,10 +111,14 @@ export type Database = {
           created_at?: string
           dia: string
           dia_index: number
+          envio_cancelado?: boolean
           foto?: string | null
           id?: string
           km: string
+          liberar_em?: string | null
           pace?: string
+          revisado_em?: string | null
+          semana: string
           tempo: string
         }
         Update: {
@@ -81,10 +127,14 @@ export type Database = {
           created_at?: string
           dia?: string
           dia_index?: number
+          envio_cancelado?: boolean
           foto?: string | null
           id?: string
           km?: string
+          liberar_em?: string | null
           pace?: string
+          revisado_em?: string | null
+          semana?: string
           tempo?: string
         }
         Relationships: [

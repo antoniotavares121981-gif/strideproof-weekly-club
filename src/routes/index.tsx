@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { MessageCircle, Users } from "lucide-react";
+import { CalendarDays, MessageCircle, Users } from "lucide-react";
 
 import hermes from "@/assets/hermes.jpg";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,8 @@ export const Route = createFileRoute("/")({
 function Inicio() {
   return (
     <div className="mx-auto max-w-md space-y-5">
-      <Alunos />
+      <div className="px-5 pt-6"><Button asChild variant="hero" size="xl" className="h-auto min-h-20 w-full whitespace-normal text-2xl"><Link to="/alunos"><CalendarDays /> 📅 VER TREINO DA SEMANA</Link></Button></div>
+      <Alunos mostrarBotao={false} />
       <div className="space-y-5 px-5">
       <div className="flex items-center gap-4 rounded-2xl bg-secondary p-4">
         <img src={hermes} alt="Hermes, treinador" width={816} height={816} className="h-20 w-20 rounded-xl object-cover object-top" />

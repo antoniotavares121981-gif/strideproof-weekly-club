@@ -6,13 +6,14 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AvaliacaoHermes } from "@/components/Hermes";
+import { ExcluirTreino } from "@/components/ExcluirTreino";
 import { TopoPagina } from "@/components/TopoPagina";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { enviarFeito, treinoDoAluno } from "@/lib/assessoria.functions";
 import { reduzirImagem } from "@/lib/imagem";
-import { diaVazio, resumoDia, type AvaliacaoSalva } from "@/lib/treino";
+import { diaVazio, resumoDia } from "@/lib/treino";
 
 export const Route = createFileRoute("/a/$token/$dia")({
   head: () => ({
@@ -26,20 +27,22 @@ export const Route = createFileRoute("/a/$token/$dia")({
       { name: "robots", content: "noindex" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { semana?: string } => ({ semana: typeof s.semana === "string" ? s.semana : undefined }),
   component: TreinoDia,
 });
 
 function TreinoDia() {
   const { token, dia } = Route.useParams();
   const i = Number(dia);
+  const { semana } = Route.useSearch();
   const qc = useQueryClient();
   const buscar = useServerFn(treinoDoAluno);
   const enviar = useServerFn(enviarFeito);
-  const { data, isLoading } = useQuery({ queryKey: ["meu", token], queryFn: () => buscar({ data: { token } }) });
+  const { data, isLoading } = useQuery({ queryKey: ["meu", token, semana], queryFn: () => buscar({ data: { token, semana } }), refetchInterval: 1000 });
   const [f, setF] = useState({ km: "", tempo: "", pace: "" });
   const [foto, setFoto] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
-  const [avaliacaoEnviada, setAvaliacaoEnviada] = useState<AvaliacaoSalva | null>(null);
+  const [enviado, setEnviado] = useState(false);
   const envioEmCurso = useRef(false);
   const resultado = useRef<HTMLDivElement>(null);
   const arquivo = useRef<HTMLInputElement>(null);
@@ -47,7 +50,8 @@ function TreinoDia() {
   if (isLoading) return <p className="p-6 text-muted-foreground">Carregando...</p>;
   const d = data?.plano?.[i];
   if (!data || !d || (!d.descanso && diaVazio(d))) return <p className="p-6 text-muted-foreground">Treino não encontrado.</p>;
-  const avaliacao = avaliacaoEnviada ?? data.feitos.find((x) => x.dia === d.dia)?.avaliacao;
+  const feito = data.feitos.find((x) => x.dia === d.dia);
+  const avaliacao = feito?.avaliacao;
 
   async function escolherFoto(e: React.ChangeEvent<HTMLInputElement>) {
     const a = e.target.files?.[0];
@@ -58,13 +62,13 @@ function TreinoDia() {
 
   async function mandar(e: React.FormEvent) {
     e.preventDefault();
-    if (envioEmCurso.current || avaliacaoEnviada) return;
+    if (envioEmCurso.current || enviado) return;
     if (!f.km.trim() || !f.tempo.trim()) { toast.error("Preencha Km e Tempo."); return; }
     envioEmCurso.current = true;
     setEnviando(true);
     try {
-      const resposta = await enviar({ data: { token, dia_index: i, ...f, foto } });
-      setAvaliacaoEnviada(resposta.avaliacao);
+      await enviar({ data: { token, semana: data?.semana, dia_index: i, ...f, foto } });
+      setEnviado(true);
       toast.success("Treino salvo e enviado para o professor!");
       qc.invalidateQueries({ queryKey: ["meu", token] });
       qc.invalidateQueries({ queryKey: ["aluno"] });
@@ -96,7 +100,9 @@ function TreinoDia() {
         </section>
         {avaliacao ? <div ref={resultado} aria-live="polite"><AvaliacaoHermes avaliacao={avaliacao} /></div> : null}
 
-        {!d.descanso && !avaliacaoEnviada ? <form onSubmit={mandar} className="space-y-3 rounded-2xl bg-secondary p-4">
+        {feito && !avaliacao ? <p role="status">Enviado, aguardando o professor</p> : null}
+        {feito ? <ExcluirTreino id={feito.id} token={token} /> : null}
+        {!d.descanso && !feito && !enviado && data.semana === data.atual ? <form onSubmit={mandar} className="space-y-3 rounded-2xl bg-secondary p-4">
           <p className="font-display text-2xl text-secondary-foreground">REGISTRAR TREINO FEITO</p>
           <div className="grid grid-cols-3 gap-2">
             {(["km", "tempo", "pace"] as const).map((c) => (
@@ -121,13 +127,13 @@ function TreinoDia() {
           {foto ? (
             <div className="relative">
               <img src={foto} alt="Foto do treino" className="w-full rounded-xl" />
-              <button type="button" aria-label="Tirar foto" onClick={() => setFoto(null)} className="absolute right-2 top-2 rounded-full bg-background p-2 text-foreground">
+              <Button type="button" variant="outline" size="icon" aria-label="Tirar foto" onClick={() => setFoto(null)} className="absolute right-2 top-2 rounded-full bg-background p-2 text-foreground">
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           ) : null}
           <Button type="submit" variant="whatsapp" size="xl" className="h-auto min-h-16 whitespace-normal py-4 text-center" disabled={enviando}>
-            <Send className="h-6 w-6 shrink-0" /> {enviando ? "SALVANDO E AVALIANDO..." : "SALVA E ENVIA PRO PROFESSOR"}
+            <Send className="h-6 w-6 shrink-0" /> {enviando ? "ENVIANDO..." : "ENVIAR PRO PROFESSOR"}
           </Button>
         </form> : null}
       </div>

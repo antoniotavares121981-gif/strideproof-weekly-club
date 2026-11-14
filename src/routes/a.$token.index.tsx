@@ -1,13 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CalendarDays, CheckCircle2, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
-import { AvaliacaoHermes, MensagemHermes } from "@/components/Hermes";
+import { AvaliacaoHermes } from "@/components/Hermes";
 import { treinoDoAluno } from "@/lib/assessoria.functions";
 import { diaVazio, resumoDia } from "@/lib/treino";
-import { mensagemHermes } from "@/lib/hermes-mensagens";
+import { ControleSemana } from "@/components/Semana";
+import { ExcluirTreino } from "@/components/ExcluirTreino";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/a/$token/")({
   head: () => ({
@@ -27,38 +29,44 @@ export const Route = createFileRoute("/a/$token/")({
 function MeuTreino() {
   const { token } = Route.useParams();
   const buscar = useServerFn(treinoDoAluno);
-  const { data, isLoading } = useQuery({ queryKey: ["meu", token], queryFn: () => buscar({ data: { token } }) });
-  const [agora, setAgora] = useState<Date | null>(null);
-  useEffect(() => { setAgora(new Date()); }, []);
+  const [semana, setSemana] = useState<string | undefined>();
+  const { data, isLoading } = useQuery({ queryKey: ["meu", token, semana], queryFn: () => buscar({ data: { token, semana } }), refetchInterval: 1000 });
+
 
   if (isLoading) return <p className="p-6 text-muted-foreground">Carregando...</p>;
   if (!data) return <p className="p-6 text-muted-foreground">Link inválido. Peça um novo link ao professor.</p>;
 
   return (
     <main className="mx-auto max-w-md space-y-5 px-5 pt-8">
+      <Button variant="hero" size="xl" className="h-auto min-h-20 w-full whitespace-normal text-2xl" onClick={() => document.getElementById("dias-semana")?.scrollIntoView({ behavior: "smooth" })}><CalendarDays /> 📅 VER TREINO DA SEMANA</Button>
       <div>
         <p className="font-display text-lg text-primary">MEU TREINO</p>
         <h1 className="text-5xl leading-none text-foreground">OLÁ, {data.nome.toUpperCase()}</h1>
         {data.objetivo ? <p className="text-muted-foreground">Objetivo: {data.objetivo}</p> : null}
       </div>
-      {data.plano && agora ? <MensagemHermes texto={mensagemHermes(data.nome, data.plano, data.feitos, data.enviado_em, agora)} /> : null}
+      <ControleSemana semana={data.semana} atual={data.atual} mudar={setSemana} historico={data.historico} />
+      <div className="border-l-2 border-primary pl-4"><p className="font-display text-xl">🎯 TEMA DA SEMANA</p><h2 className="font-display text-4xl">{data.tema || "Sem tema definido"}</h2></div>
       {!data.plano ? (
         <p className="rounded-2xl bg-secondary p-4 text-secondary-foreground">O professor ainda não mandou seu treino. Aguarde.</p>
       ) : (
-        <ul className="space-y-3">
+        <ul id="dias-semana" className="space-y-3">
           {data.plano.map((d, i) => {
-            if (!d.descanso && diaVazio(d)) return null;
+            const vazio = !d.descanso && diaVazio(d);
             const feito = data.feitos.find((f) => f.dia === d.dia);
             return (
               <li key={i}>
-                <Link to="/a/$token/$dia" params={{ token, dia: String(i) }} className="flex items-center justify-between rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
+                <Link to="/a/$token/$dia" params={{ token, dia: String(i) }} search={{ semana: data.semana }} className="flex items-center justify-between rounded-2xl bg-paper p-4 text-paper-foreground shadow-card">
                   <span>
-                    <span className="block font-display text-3xl leading-none">{d.dia}</span>
-                    <span className="block text-lg font-bold">{resumoDia(d)}</span>
+                    <span className="block font-display text-3xl leading-none">{d.dia}{d.tipo ? ` — ${d.tipo}` : ""}</span>
+                    <span className="block text-lg font-bold">{vazio ? "Sem treino" : resumoDia(d)}</span>
+                    {!feito ? <span className="mt-1 block text-sm font-bold">⏳ NÃO FEITO</span> : null}
                     {feito ? <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-xs font-bold text-success-foreground"><CheckCircle2 className="h-4 w-4" /> ENVIADO</span> : null}
                   </span>
                   <ChevronRight />
                 </Link>
+                {!vazio && !d.descanso && data.semana === data.atual ? <Button asChild variant="outline" className="mt-2 w-full"><Link to="/a/$token/$dia" params={{ token, dia: String(i) }} search={{ semana: data.semana }}>FIZ O TREINO / ENVIAR PRO PROFESSOR</Link></Button> : null}
+                {feito && !feito.avaliacao ? <p className="py-2 text-sm">Enviado, aguardando o professor</p> : null}
+                {feito ? <div className="mt-2"><ExcluirTreino id={feito.id} token={token} /></div> : null}
                 {feito?.avaliacao ? <div className="mt-2"><AvaliacaoHermes avaliacao={feito.avaliacao} /></div> : null}
               </li>
             );

@@ -15,6 +15,13 @@
       "when": 1794355235096,
       "tag": "0001_avaliacao_treino_feito",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794618565576,
+      "tag": "0002_weekly_history_hermes_review",
+      "breakpoints": true
     }
   ]
 }
