@@ -13,3 +13,4 @@
 - [ ] Verify saving, rest toggling, blank days and shared Hermes messages.
 
 - [x] Automatically save and share Hermes evaluation on student submission; remove manual evaluation and verify both views.
+- [ ] Send saved Hermes evaluations as phone push notifications; requires Firebase web push connection and student permission.
