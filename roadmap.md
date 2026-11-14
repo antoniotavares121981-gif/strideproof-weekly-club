@@ -14,3 +14,8 @@
 
 - [x] Automatically save and share Hermes evaluation on student submission; remove manual evaluation and verify both views.
 - [ ] Send saved Hermes evaluations as phone push notifications; requires Firebase web push connection and student permission.
+- [ ] Add current-week entry buttons, seven-day views, previous/next navigation and week themes while preserving existing data.
+- [ ] Archive weekly plans and workout records without automatic deletion; prepare future weeks blank.
+- [ ] Hold new Hermes evaluations for professor review; schedule release after 120 seconds with send-now/cancel controls.
+- [ ] Add confirmed owner-scoped workout deletion and professor week clearing; resolve protection of professor deletion actions.
+- [ ] Verify week rollover, history, delayed visibility, cancellation and deletion across professor/student views.
