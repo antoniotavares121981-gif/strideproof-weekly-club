@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronRight, Trash2, UserPlus } from "lucide-react";
+import { CalendarDays, ChevronRight, Trash2, UserPlus } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -23,10 +23,10 @@ export const Route = createFileRoute("/alunos/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Alunos,
+  component: () => <Alunos />,
 });
 
-export function Alunos() {
+export function Alunos({ mostrarBotao = true }: { mostrarBotao?: boolean } = {}) {
   const qc = useQueryClient();
   const listar = useServerFn(listarAlunos);
   const criar = useServerFn(criarAluno);
@@ -53,15 +53,19 @@ export function Alunos() {
 
   async function remover(id: string, n: string) {
     if (!confirm(`Apagar ${n}?`)) return;
-    await apagar({ data: { id } });
+    const codigo = prompt("Código do professor");
+    if (!codigo) return;
+    try { await apagar({ data: { id, codigo } }); }
+    catch { toast.error("Código inválido ou não configurado. Aluno não apagado."); return; }
     qc.invalidateQueries({ queryKey: ["alunos"] });
   }
 
   return (
     <main className="mx-auto max-w-md">
+      {mostrarBotao ? <div className="px-5 pt-6"><Button variant="hero" size="xl" className="h-auto min-h-20 w-full whitespace-normal text-2xl" onClick={() => document.getElementById("lista-alunos")?.scrollIntoView({ behavior: "smooth" })}><CalendarDays /> 📅 VER TREINO DA SEMANA</Button></div> : null}
       <TopoPagina titulo="Painel do Professor" />
       <div className="space-y-5 px-5">
-        <ul className="space-y-2">
+        <ul id="lista-alunos" className="space-y-2">
           {isLoading ? <li className="text-muted-foreground">Carregando...</li> : null}
           {alunos && alunos.length === 0 ? <li className="text-muted-foreground">Nenhum aluno ainda. Cadastre abaixo.</li> : null}
           {alunos?.map((a) => (
