@@ -1,8 +1,8 @@
 import { PROFESSOR_PADRAO } from "./envios";
 
-export type DiaPlano = { dia: string; km: string; tempo?: string; pace: string; detalhes: string; descanso?: boolean | undefined };
+export type DiaPlano = { dia: string; tipo?: string; km: string; tempo?: string; pace: string; detalhes: string; descanso?: boolean | undefined };
 export type AvaliacaoSalva = { acertos: string[]; erros: string[]; melhorar: string; texto: string; em: string };
-export type Feito = { id: string; dia_index: number; dia: string; km: string; tempo: string; pace: string; foto: string | null; created_at: string; avaliacao: AvaliacaoSalva | null };
+export type Feito = { id: string; dia_index: number; dia: string; km: string; tempo: string; pace: string; foto: string | null; created_at: string; avaliacao: AvaliacaoSalva | null; semana?: string; revisado_em?: string | null; liberar_em?: string | null; envio_cancelado?: boolean };
 
 export const DIAS_SEMANA = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"];
 
@@ -60,7 +60,8 @@ export function mensagemEnvioAluno(nome: string, link: string, plano: DiaPlano[]
   if (avaliados.length) {
     linhas.push("", "*AVALIAÇÃO DO HERMES*");
     for (const f of avaliados) {
-      const a = f.avaliacao!;
+      const a = f.avaliacao;
+      if (!a) continue;
       linhas.push("", `*${f.dia}*`);
       if (a.acertos.length) linhas.push(`O que você acertou: ${a.acertos.join(" ")}`);
       if (a.erros.length) linhas.push(`O que você errou: ${a.erros.join(" ")}`);
