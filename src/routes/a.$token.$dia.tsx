@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Camera, Send, X } from "lucide-react";
+import { Camera, LoaderCircle, Send, X } from "lucide-react";
+import { linkProfessor } from "@/lib/envios";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -100,10 +101,11 @@ function TreinoDia() {
         </section>
         {avaliacao ? <div ref={resultado} aria-live="polite"><AvaliacaoHermes avaliacao={avaliacao} /></div> : null}
 
-        {feito && !avaliacao ? <p role="status">Enviado, aguardando o professor</p> : null}
-        {feito ? <ExcluirTreino id={feito.id} token={token} /> : null}
+        {feito && !avaliacao ? <p role="status" className="flex items-center gap-2 text-lg font-bold"><LoaderCircle className="h-6 w-6 shrink-0 animate-spin" /> 🤖 Hermes está analisando seu treino...</p> : null}
+        {feito && avaliacao ? <ExcluirTreino id={feito.id} token={token} /> : null}
+        {feito ? <Button asChild variant="whatsapp" size="xl" className="h-auto min-h-16 w-full whitespace-normal"><a href={linkProfessor(`Novo treino de ${data.nome} - ${feito.km} km, ${feito.tempo}, ${feito.pace || "-"} /km`)} target="_blank" rel="noopener noreferrer"><Send /> AVISAR O PROFESSOR NO WHATSAPP</a></Button> : null}
         {!d.descanso && !feito && !enviado && data.semana === data.atual ? <form onSubmit={mandar} className="space-y-3 rounded-2xl bg-secondary p-4">
-          <p className="font-display text-2xl text-secondary-foreground">REGISTRAR TREINO FEITO</p>
+          <p className="font-display text-4xl text-secondary-foreground">REGISTRAR TREINO FEITO</p>
           <div className="grid grid-cols-3 gap-2">
             {(["km", "tempo", "pace"] as const).map((c) => (
               <div key={c} className="space-y-1">
@@ -115,14 +117,14 @@ function TreinoDia() {
                   maxLength={10}
                   value={f[c]}
                   onChange={(e) => setF({ ...f, [c]: e.target.value })}
-                  className="h-12 text-lg font-semibold"
+                  className="h-16 text-2xl font-semibold"
                 />
               </div>
             ))}
           </div>
           <input ref={arquivo} type="file" accept="image/*" className="hidden" onChange={escolherFoto} aria-label="Foto do treino" />
-          <Button type="button" variant="outline" size="lg" className="w-full" onClick={() => arquivo.current?.click()}>
-            <Camera /> TIRAR FOTO DO TREINO / ANEXAR FOTO
+          <Button type="button" variant="outline" size="xl" className="h-auto min-h-20 w-full whitespace-normal text-xl" onClick={() => arquivo.current?.click()}>
+            <Camera className="h-7 w-7 shrink-0" /> TIRAR FOTO DO TREINO / ANEXAR FOTO
           </Button>
           {foto ? (
             <div className="relative">

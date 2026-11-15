@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarDays, CheckCircle2, ChevronRight } from "lucide-react";
+import { CalendarDays, CheckCircle2, ChevronRight, LoaderCircle } from "lucide-react";
+import { linkProfessor } from "@/lib/envios";
+import { SalvarTelaInicial } from "@/components/SalvarTelaInicial";
 import { useState } from "react";
 
 import { AvaliacaoHermes } from "@/components/Hermes";
@@ -12,7 +14,11 @@ import { ExcluirTreino } from "@/components/ExcluirTreino";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/a/$token/")({
-  head: () => ({
+  head: ({ params }) => ({
+    links: [
+      { rel: "manifest", href: `/api/public/manifest/${params.token}` },
+      { rel: "apple-touch-icon", href: "/icone-180.png" },
+    ],
     meta: [
       { title: "Meu treino — Assessoria de Corrida" },
       { name: "description", content: "Seu treino da semana enviado pelo professor." },
@@ -21,6 +27,9 @@ export const Route = createFileRoute("/a/$token/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Meu Treino" },
     ],
   }),
   component: MeuTreino,
@@ -44,6 +53,7 @@ function MeuTreino() {
         <h1 className="text-5xl leading-none text-foreground">OLÁ, {data.nome.toUpperCase()}</h1>
         {data.objetivo ? <p className="text-muted-foreground">Objetivo: {data.objetivo}</p> : null}
       </div>
+      <SalvarTelaInicial />
       <ControleSemana semana={data.semana} atual={data.atual} mudar={setSemana} historico={data.historico} />
       <div className="border-l-2 border-primary pl-4"><p className="font-display text-xl">🎯 TEMA DA SEMANA</p><h2 className="font-display text-4xl">{data.tema || "Sem tema definido"}</h2></div>
       {!data.plano ? (
@@ -64,10 +74,12 @@ function MeuTreino() {
                   </span>
                   <ChevronRight />
                 </Link>
-                {!vazio && !d.descanso && data.semana === data.atual ? <Button asChild variant="outline" className="mt-2 w-full"><Link to="/a/$token/$dia" params={{ token, dia: String(i) }} search={{ semana: data.semana }}>FIZ O TREINO / ENVIAR PRO PROFESSOR</Link></Button> : null}
-                {feito && !feito.avaliacao ? <p className="py-2 text-sm">Enviado, aguardando o professor</p> : null}
-                {feito ? <div className="mt-2"><ExcluirTreino id={feito.id} token={token} /></div> : null}
-                {feito?.avaliacao ? <div className="mt-2"><AvaliacaoHermes avaliacao={feito.avaliacao} /></div> : null}
+                {!vazio && !d.descanso ? <div className="mt-2 grid grid-cols-2 gap-2">
+                  <Button asChild variant="hero" size="xl" className="h-auto min-h-16 whitespace-normal text-lg"><Link to="/a/$token/$dia" params={{ token, dia: String(i) }} search={{ semana: data.semana }}>ABRIR NO APLICATIVO</Link></Button>
+                  <Button asChild variant="whatsapp" size="xl" className="h-auto min-h-16 whitespace-normal text-lg"><a href={linkProfessor(`Treino de ${d.dia}: ${resumoDia(d)}`)} target="_blank" rel="noopener noreferrer">ABRIR NO WHATSAPP</a></Button>
+                </div> : null}
+                {feito && !feito.avaliacao ? <p role="status" className="flex items-center gap-2 py-3 font-bold"><LoaderCircle className="h-6 w-6 shrink-0 animate-spin" /> 🤖 Hermes está analisando seu treino...</p> : null}
+                {feito?.avaliacao ? <div className="mt-2 space-y-2"><AvaliacaoHermes avaliacao={feito.avaliacao} /><ExcluirTreino id={feito.id} token={token} /></div> : null}
               </li>
             );
           })}

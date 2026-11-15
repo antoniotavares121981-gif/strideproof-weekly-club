@@ -21,7 +21,7 @@ export function AvaliacaoHermes({ avaliacao }: { avaliacao: AvaliacaoSalva }) {
           </p>
         </div>
       </div>
-      <p className="mt-3 whitespace-pre-line text-sm leading-relaxed">{avaliacao.texto.length > 220 || avaliacao.texto.includes("\n") ? `${avaliacao.erros.length ? "⚠️" : "✅"} ${avaliacao.erros.length ? avaliacao.erros.join(" ") + " " + avaliacao.melhorar : "Dentro do pedido. " + avaliacao.melhorar}` : avaliacao.texto}</p>
+      <p className="mt-3 whitespace-pre-line text-sm leading-relaxed">{avaliacao.texto}</p>
     </section>
   );
 }

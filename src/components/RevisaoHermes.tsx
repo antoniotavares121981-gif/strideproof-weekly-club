@@ -24,6 +24,8 @@ export function RevisaoHermes({ feito }: { feito: Feito }) {
   }
   if (!feito.avaliacao) return null;
   const falta = Math.max(0, Math.ceil(((feito.liberar_em ? new Date(feito.liberar_em).getTime() : agora) - agora) / 1000));
+  if (avaliacaoLiberada(feito, new Date(agora))) return <p className="font-bold text-success">Resultado enviado pro aluno.</p>;
+  return <Button variant="whatsapp" size="xl" className="h-auto min-h-16 w-full" disabled={ocupado} onClick={() => agir("agora")}>ENVIAR RESULTADO</Button>;
   return <div className="space-y-3">
     {!feito.revisado_em ? <><p className="flex items-center gap-2"><LoaderCircle className="shrink-0 animate-spin motion-reduce:animate-none" /> 🤖 Hermes está avaliando seu treino...</p><Button variant="hero" className="w-full" disabled={ocupado} onClick={() => agir("avaliar")}>AVALIAR COM HERMES / VER AVALIAÇÃO</Button></> : <>
       <AvaliacaoHermes avaliacao={feito.avaliacao} />
