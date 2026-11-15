@@ -30,7 +30,7 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Project rules
-- Students, their 3-day plan (draft + sent copy) and finished workouts live in Lovable Cloud; tables have no RLS policies and are reached only via server functions in `src/lib/assessoria.functions.ts` (admin client) so a student only sees data through their own secret link token.
+- Students, their weekly 7-day plan (draft + sent copy) and finished workouts live in Lovable Cloud; tables have no RLS policies and are reached only via server functions in `src/lib/assessoria.functions.ts` (admin client) so a student only sees data through their own secret link token.
 - Student view lives under `/a/$token` (no login); professor view has no password by user choice. A plan becomes visible to the student only when copied to `plano_enviado` by ENVIAR.
 - Hermes evaluation, WhatsApp links and message text are pure functions in `src/lib/envios.ts`, covered by `src/test/envios.test.ts`.
 - WhatsApp sending is a client-side `wa.me` link (professor number fixed; student number per student).
