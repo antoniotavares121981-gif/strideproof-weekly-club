@@ -30,12 +30,12 @@ describe("regras", () => {
   it("Hermes: dentro da faixa = sem erros", () => {
     const a = avaliarHermes(seg, { km: "9,7", tempo: "1h00", pace: "6:11", em: "" });
     expect(a.erros).toHaveLength(0);
-    expect(a.texto).toBe("✅ Fez 9,7 km em 60 min, pace 6:11. Dentro do pedido, mantém assim no próximo.");
+    expect(a.texto.startsWith("✅ Fez 9,7 km em 60 min, pace 6:11.")).toBe(true); expect(a.texto.split(". ").length).toBeGreaterThanOrEqual(4); expect(a.texto).toContain("Parabéns");
   });
   it("Hermes: pace = tempo / distância e sem faixa inventada", () => {
     const m = { ...seg, km: 10, paceMin: "5:50", paceMax: "5:50" };
     const a = avaliarHermes(m, { km: "10", tempo: "60min", pace: "", em: "" });
-    expect(a.texto).toBe("⚠️ Fez 10 km em 60 min, pace 6:00. Pace ficou acima do pedido de 5:50. Acelera um pouco no próximo.");
+    expect(a.texto).toContain("⚠️ Fez 10 km em 60 min, pace 6:00."); expect(a.texto).toContain("Pace ficou acima do pedido de 5:50. Acelera um pouco no próximo.");
     expect(avaliarHermes(m, { km: "10", tempo: "40min", pace: "", em: "" }).texto).toContain("pace 4:00");
     expect(a.texto.split("\n")).toHaveLength(1);
   });

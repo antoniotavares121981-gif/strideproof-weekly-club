@@ -17,6 +17,7 @@ import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
 import { Route as ATokenIndexRouteImport } from './routes/a.$token.index'
 import { Route as ATokenDiaRouteImport } from './routes/a.$token.$dia'
 import { Route as AlunosIdIndexRouteImport } from './routes/alunos.$id.index'
+import { Route as ApiPublicManifestTokenRouteImport } from './routes/api/public/manifest.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +59,11 @@ const AlunosIdIndexRoute = AlunosIdIndexRouteImport.update({
   path: '/alunos/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicManifestTokenRoute = ApiPublicManifestTokenRouteImport.update({
+  id: '/api/public/manifest/$token',
+  path: '/api/public/manifest/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/a/$token/$dia': typeof ATokenDiaRoute
   '/a/$token/': typeof ATokenIndexRoute
   '/alunos/$id/': typeof AlunosIdIndexRoute
+  '/api/public/manifest/$token': typeof ApiPublicManifestTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/a/$token/$dia': typeof ATokenDiaRoute
   '/a/$token': typeof ATokenIndexRoute
   '/alunos/$id': typeof AlunosIdIndexRoute
+  '/api/public/manifest/$token': typeof ApiPublicManifestTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/a/$token/$dia': typeof ATokenDiaRoute
   '/a/$token/': typeof ATokenIndexRoute
   '/alunos/$id/': typeof AlunosIdIndexRoute
+  '/api/public/manifest/$token': typeof ApiPublicManifestTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/a/$token/$dia'
     | '/a/$token/'
     | '/alunos/$id/'
+    | '/api/public/manifest/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/a/$token/$dia'
     | '/a/$token'
     | '/alunos/$id'
+    | '/api/public/manifest/$token'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/a/$token/$dia'
     | '/a/$token/'
     | '/alunos/$id/'
+    | '/api/public/manifest/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   ATokenDiaRoute: typeof ATokenDiaRoute
   ATokenIndexRoute: typeof ATokenIndexRoute
   AlunosIdIndexRoute: typeof AlunosIdIndexRoute
+  ApiPublicManifestTokenRoute: typeof ApiPublicManifestTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlunosIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/manifest/$token': {
+      id: '/api/public/manifest/$token'
+      path: '/api/public/manifest/$token'
+      fullPath: '/api/public/manifest/$token'
+      preLoaderRoute: typeof ApiPublicManifestTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   ATokenDiaRoute: ATokenDiaRoute,
   ATokenIndexRoute: ATokenIndexRoute,
   AlunosIdIndexRoute: AlunosIdIndexRoute,
+  ApiPublicManifestTokenRoute: ApiPublicManifestTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
