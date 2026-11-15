@@ -1,6 +1,6 @@
 import { PROFESSOR_PADRAO } from "./envios";
 
-export type DiaPlano = { dia: string; tipo?: string; km: string; tempo?: string; pace: string; detalhes: string; descanso?: boolean | undefined };
+export type DiaPlano = { dia: string; tipo?: string | undefined; km: string; tempo?: string | undefined; pace: string; detalhes: string; descanso?: boolean | undefined };
 export type AvaliacaoSalva = { acertos: string[]; erros: string[]; melhorar: string; texto: string; em: string };
 export type Feito = { id: string; dia_index: number; dia: string; km: string; tempo: string; pace: string; foto: string | null; created_at: string; avaliacao: AvaliacaoSalva | null; semana?: string; revisado_em?: string | null; liberar_em?: string | null; envio_cancelado?: boolean };
 

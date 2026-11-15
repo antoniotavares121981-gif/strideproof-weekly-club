@@ -27,7 +27,7 @@ export const Route = createFileRoute("/a/$token/$dia")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { semana?: string } => ({ semana: typeof s.semana === "string" ? s.semana : undefined }),
+  validateSearch: (s: Record<string, unknown>): { semana?: string | undefined } => ({ semana: typeof s["semana"] === "string" ? s["semana"] : undefined }),
   component: TreinoDia,
 });
 
