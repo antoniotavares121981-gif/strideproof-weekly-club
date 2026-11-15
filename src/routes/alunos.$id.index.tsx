@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { enviarPlano, salvarRascunho, verAluno } from "@/lib/assessoria.functions";
 import { linkAluno } from "@/lib/envios";
-import { completarSemana, erroPlano, mensagemEnvioAluno, resumoDia, type DiaPlano } from "@/lib/treino";
+import { completarSemana, erroPlano, resumoDia, type DiaPlano } from "@/lib/treino";
 
 export const Route = createFileRoute("/alunos/$id/")({
   head: () => ({
@@ -153,13 +153,12 @@ function TelaAluno() {
                   {f.foto ? <img src={f.foto} alt={`Foto do treino de ${f.dia}`} className="mt-3 w-full rounded-xl" loading="lazy" /> : <p className="mt-2 text-sm text-paper-muted">Sem foto.</p>}
                 </div>
                 <RevisaoHermes feito={f} />
-                 <ExcluirTreino id={f.id} />
               </div>
             );
           })}
         </section>
         <Button asChild variant="whatsapp" size="xl" className="min-h-16 h-auto whitespace-normal px-4 py-4 text-center">
-          <a href={linkAluno(aluno.whatsapp, mensagemEnvioAluno(aluno.nome, `${typeof window === "undefined" ? "" : window.location.origin}/a/${aluno.token}`, plano))} target="_blank" rel="noopener noreferrer" onClick={mandar} aria-disabled={enviando}>
+          <a href={linkAluno(aluno.whatsapp, `Oi, ${aluno.nome}! Seu treino da semana chegou! Abra seu treino e registre o que fez:`)} target="_blank" rel="noopener noreferrer" onClick={mandar} aria-disabled={enviando}>
             <Send className="h-6 w-6" /> {enviando ? "SALVANDO..." : "ENVIAR PELO WHATSAPP"}
           </a>
         </Button>

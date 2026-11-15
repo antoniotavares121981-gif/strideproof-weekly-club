@@ -169,7 +169,6 @@ export const revisarHermes = createServerFn({ method: "POST" })
     const { data: f, error: ef } = await sb.from("treinos_feitos").select("id, avaliacao, revisado_em").eq("id", data.id).maybeSingle();
     if (ef) throw new Error(ef.message);
     if (!f?.avaliacao) throw new Error("Avaliação não encontrada.");
-    if (data.acao === "agora" && !f.revisado_em) throw new Error("Confira a avaliação primeiro.");
     const agora = new Date();
     const alteracao = data.acao === "cancelar" ? { envio_cancelado: true, liberar_em: null } : { revisado_em: f.revisado_em ?? agora.toISOString(), liberar_em: data.acao === "agora" ? agora.toISOString() : horarioLiberacao(agora), envio_cancelado: false };
     const { error } = await sb.from("treinos_feitos").update(alteracao).eq("id", data.id);

@@ -105,6 +105,10 @@ export function avaliarHermes(meta: Meta, reg: Registro, _nome?: string): Avalia
     : erros.some((e) => e.includes("acima do")) ? "Acelera um pouco no próximo."
     : "Segue o que foi pedido no próximo.";
   const resultado = `Fez ${km(kmFeito)} km em ${minutos} min, pace ${pace}.`;
-  const texto = `${ok ? "✅" : "⚠️"} ${resultado} ${ok ? "Dentro do pedido, mantém assim no próximo." : `${erros.join(" ")} ${melhorar}`}`;
+  const fraseDist = meta.km === 0 ? "Hoje era dia de descanso, e o corpo também evolui parado." : acertos.includes("Distância certa.") ? `A distância ficou certinha com os ${km(meta.km)} km que eu pedi.` : `A distância não bateu com os ${km(meta.km)} km que eu pedi.`;
+  const frasePace = !faixa ? `Seu pace médio foi ${pace} por km, guarde esse número pra comparar na próxima semana.` : acertos.includes("Pace certo.") ? `O pace de ${pace} ficou dentro do ${faixa}, ritmo bem controlado.` : `O pace de ${pace} saiu do ${faixa}.`;
+  const fraseTempo = minutos > 0 ? `Foram ${minutos} minutos correndo, tempo ${ok ? "bem administrado do começo ao fim" : "que mostra onde dá pra ajustar"}.` : "Anote sempre o tempo total pra eu poder conferir o ritmo.";
+  const fraseFim = ok ? "Parabéns pelo treino, continue com essa constância e capriche na água e no alongamento." : "Parabéns por ter ido treinar, isso já conta muito; agora é ajustar e seguir firme.";
+  const texto = `${ok ? "✅" : "⚠️"} ${resultado} ${fraseDist} ${frasePace} ${fraseTempo} ${ok ? "Dentro do pedido, mantém assim no próximo." : `${erros.join(" ")} ${melhorar}`} ${fraseFim}`;
   return { acertos, erros, melhorar, texto };
 }
