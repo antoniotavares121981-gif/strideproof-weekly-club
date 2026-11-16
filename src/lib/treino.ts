@@ -2,7 +2,7 @@ import { PROFESSOR_PADRAO } from "./envios";
 
 export type DiaPlano = { dia: string; tipo?: string | undefined; km: string; tempo?: string | undefined; pace: string; detalhes: string; descanso?: boolean | undefined };
 export type AvaliacaoSalva = { acertos: string[]; erros: string[]; melhorar: string; texto: string; em: string };
-export type Feito = { id: string; dia_index: number; dia: string; km: string; tempo: string; pace: string; foto: string | null; created_at: string; avaliacao: AvaliacaoSalva | null; semana?: string; revisado_em?: string | null; liberar_em?: string | null; envio_cancelado?: boolean };
+export type Feito = { id: string; dia_index: number; dia: string; km: string; tempo: string; pace: string; foto: string | null; created_at: string; avaliacao: AvaliacaoSalva | null; semana?: string; revisado_em?: string | null; liberar_em?: string | null; envio_cancelado?: boolean; onde_errei?: string; onde_acertei?: string };
 
 export const DIAS_SEMANA = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"];
 
@@ -51,6 +51,12 @@ export function resumoDia(d: DiaPlano): string {
   if (d.descanso) return "Descanso";
   if (diaVazio(d)) return "";
   return `${d.km.replace(".", ",")} km${d.tempo?.trim() ? ` - ${d.tempo.trim()}` : ""} a ${d.pace} /km`;
+}
+
+/** Endereço público fixo do app, para o link do aluno funcionar fora do editor. */
+export const SITE_APP = "https://strideproof-weekly-club.lovable.app";
+export function linkDoAluno(token: string): string {
+  return `${SITE_APP}/a/${token}`;
 }
 
 export function mensagemEnvioAluno(nome: string, link: string, plano: DiaPlano[], feitos: Pick<Feito, "dia" | "avaliacao">[] = []): string {
