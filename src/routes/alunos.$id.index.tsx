@@ -86,7 +86,7 @@ function TelaAluno() {
     setEnviando(true);
     try {
       await enviar({ data: { id, semana: data?.semana, tema, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
-      toast.success("Treino disponível no link do aluno. Confirme o envio no WhatsApp.");
+      toast.success("TREINO SALVO");
       qc.invalidateQueries({ queryKey: ["aluno", id] });
     } catch {
       toast.error("Não deu pra salvar o treino. Volte e tente de novo antes de enviar a mensagem.");
@@ -181,7 +181,7 @@ function TelaAluno() {
         </section>
         <Button asChild variant="whatsapp" size="xl" className="min-h-16 h-auto whitespace-normal px-4 py-4 text-center">
           <a href={linkAluno(aluno.whatsapp, mensagemEnvioAluno(aluno.nome, linkDoAluno(aluno.token), plano, feitos))} target="_blank" rel="noopener noreferrer" onClick={mandar} aria-disabled={enviando}>
-            <Send className="h-6 w-6" /> {enviando ? "SALVANDO..." : "MANDAR PELO WHATSAPP"}
+            <Send className="h-6 w-6" /> {enviando ? "SALVANDO..." : "SALVAR E ENVIAR"}
           </a>
         </Button>
         <Button type="button" variant="hero" size="xl" className="h-auto min-h-16 w-full whitespace-normal" onClick={mandarPeloApp} disabled={enviando}><Smartphone className="h-6 w-6" /> MANDAR PELO APP</Button>

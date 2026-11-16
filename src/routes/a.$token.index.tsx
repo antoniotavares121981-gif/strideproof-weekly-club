@@ -39,10 +39,11 @@ function MeuTreino() {
   const { token } = Route.useParams();
   const buscar = useServerFn(treinoDoAluno);
   const [semana, setSemana] = useState<string | undefined>();
-  const { data, isLoading } = useQuery({ queryKey: ["meu", token, semana], queryFn: () => buscar({ data: { token, semana } }), refetchInterval: 1000 });
+  const { data, isPending, isError, refetch } = useQuery({ queryKey: ["meu", token, semana], queryFn: () => buscar({ data: { token, semana } }), refetchInterval: 5000, retry: 2 });
 
 
-  if (isLoading) return <p className="p-6 text-muted-foreground">Carregando...</p>;
+  if (isError && !data) return <div className="space-y-3 p-6"><p className="text-muted-foreground">Não deu pra abrir seu treino agora.</p><Button onClick={() => refetch()}>TENTAR DE NOVO</Button></div>;
+  if (isPending) return <p className="p-6 text-muted-foreground">Carregando...</p>;
   if (!data) return <p className="p-6 text-muted-foreground">Link inválido. Peça um novo link ao professor.</p>;
 
   return (
