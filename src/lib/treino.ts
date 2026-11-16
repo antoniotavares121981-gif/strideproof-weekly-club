@@ -1,5 +1,3 @@
-import { PROFESSOR_PADRAO } from "./envios";
-
 export type DiaPlano = { dia: string; tipo?: string | undefined; km: string; tempo?: string | undefined; pace: string; detalhes: string; descanso?: boolean | undefined };
 export type AvaliacaoSalva = { acertos: string[]; erros: string[]; melhorar: string; texto: string; em: string };
 export type Feito = { id: string; dia_index: number; dia: string; km: string; tempo: string; pace: string; foto: string | null; created_at: string; avaliacao: AvaliacaoSalva | null; semana?: string; revisado_em?: string | null; liberar_em?: string | null; envio_cancelado?: boolean; onde_errei?: string; onde_acertei?: string };
@@ -56,24 +54,14 @@ export function resumoDia(d: DiaPlano): string {
 /** Endereço público fixo do app, para o link do aluno funcionar fora do editor. */
 export const SITE_APP = "https://strideproof-weekly-club.lovable.app";
 export function linkDoAluno(token: string): string {
-  return `${SITE_APP}/a/${token}`;
+  const limpo = token.replace(/\s+/g, "").replace(/^.*\/a\//, "").replace(/^\/+|\/+$/g, "");
+  return `${SITE_APP}/a/${limpo}`;
 }
 
-export function mensagemEnvioAluno(nome: string, link: string, plano: DiaPlano[], feitos: Pick<Feito, "dia" | "avaliacao">[] = []): string {
+/** Mensagem curta: só o treino e o link numa linha sozinha, sem espaços. */
+export function mensagemEnvioAluno(nome: string, link: string, plano: DiaPlano[], _feitos: Pick<Feito, "dia" | "avaliacao">[] = []): string {
   const linhas = [`Olá, ${nome}! Seu treino da semana chegou!`, ""];
-  for (const d of diasPreenchidos(plano)) linhas.push(`*${d.dia}* - ${resumoDia(d)}`);
-  const avaliados = feitos.filter((f) => f.avaliacao);
-  if (avaliados.length) {
-    linhas.push("", "*AVALIAÇÃO DO HERMES*");
-    for (const f of avaliados) {
-      const a = f.avaliacao;
-      if (!a) continue;
-      linhas.push("", `*${f.dia}*`);
-      if (a.acertos.length) linhas.push(`O que você acertou: ${a.acertos.join(" ")}`);
-      if (a.erros.length) linhas.push(`O que você errou: ${a.erros.join(" ")}`);
-      if (a.melhorar) linhas.push(`O que melhorar: ${a.melhorar}`);
-    }
-  }
-  linhas.push("", "Abra seu treino e registre o que fez:", link, "", `Duvidas: professor ${PROFESSOR_PADRAO}`);
+  for (const d of diasPreenchidos(plano)) linhas.push(`${d.dia}: ${resumoDia(d)}`);
+  linhas.push("", link.replace(/\s+/g, ""));
   return linhas.join("\n");
 }
