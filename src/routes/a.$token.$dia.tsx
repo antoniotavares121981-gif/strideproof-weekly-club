@@ -11,6 +11,7 @@ import { ExcluirTreino } from "@/components/ExcluirTreino";
 import { TopoPagina } from "@/components/TopoPagina";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { enviarFeito, treinoDoAluno } from "@/lib/assessoria.functions";
 import { reduzirImagem } from "@/lib/imagem";
@@ -41,6 +42,7 @@ function TreinoDia() {
   const enviar = useServerFn(enviarFeito);
   const { data, isLoading } = useQuery({ queryKey: ["meu", token, semana], queryFn: () => buscar({ data: { token, semana } }), refetchInterval: 1000 });
   const [f, setF] = useState({ km: "", tempo: "", pace: "" });
+  const [notas, setNotas] = useState({ onde_errei: "", onde_acertei: "" });
   const [foto, setFoto] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
@@ -68,7 +70,7 @@ function TreinoDia() {
     envioEmCurso.current = true;
     setEnviando(true);
     try {
-      await enviar({ data: { token, semana: data?.semana, dia_index: i, ...f, foto } });
+      await enviar({ data: { token, semana: data?.semana, dia_index: i, ...f, ...notas, foto } });
       setEnviado(true);
       toast.success("Treino salvo e enviado para o professor!");
       qc.invalidateQueries({ queryKey: ["meu", token] });
@@ -101,6 +103,7 @@ function TreinoDia() {
         </section>
         {avaliacao ? <div ref={resultado} aria-live="polite"><AvaliacaoHermes avaliacao={avaliacao} /></div> : null}
 
+        {feito && (feito.onde_acertei || feito.onde_errei) ? <div className="rounded-2xl bg-paper p-4 text-paper-foreground">{feito.onde_acertei ? <p><b>Onde eu acertei:</b> {feito.onde_acertei}</p> : null}{feito.onde_errei ? <p><b>Onde eu errei:</b> {feito.onde_errei}</p> : null}</div> : null}
         {feito && !avaliacao ? <p role="status" className="flex items-center gap-2 text-lg font-bold"><LoaderCircle className="h-6 w-6 shrink-0 animate-spin" /> 🤖 Hermes está analisando seu treino...</p> : null}
         {feito && avaliacao ? <ExcluirTreino id={feito.id} token={token} /> : null}
         {feito ? <Button asChild variant="whatsapp" size="xl" className="h-auto min-h-16 w-full whitespace-normal"><a href={linkProfessor(`Novo treino de ${data.nome} - ${feito.km} km, ${feito.tempo}, ${feito.pace || "-"} /km`)} target="_blank" rel="noopener noreferrer"><Send /> AVISAR O PROFESSOR NO WHATSAPP</a></Button> : null}
@@ -122,6 +125,12 @@ function TreinoDia() {
               </div>
             ))}
           </div>
+          {(["onde_acertei", "onde_errei"] as const).map((c) => (
+            <div key={c} className="space-y-1">
+              <Label htmlFor={c} className="text-lg">{c === "onde_acertei" ? "Onde eu acertei" : "Onde eu errei"}</Label>
+              <Textarea id={c} maxLength={1000} value={notas[c]} onChange={(e) => setNotas({ ...notas, [c]: e.target.value })} />
+            </div>
+          ))}
           <input ref={arquivo} type="file" accept="image/*" className="hidden" onChange={escolherFoto} aria-label="Foto do treino" />
           <Button type="button" variant="outline" size="xl" className="h-auto min-h-20 w-full whitespace-normal text-xl" onClick={() => arquivo.current?.click()}>
             <Camera className="h-7 w-7 shrink-0" /> TIRAR FOTO DO TREINO / ANEXAR FOTO

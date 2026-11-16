@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarDays, CheckCircle2, Send } from "lucide-react";
+import { CalendarDays, CheckCircle2, Copy, Send, Smartphone } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { enviarPlano, salvarRascunho, verAluno } from "@/lib/assessoria.functions";
 import { linkAluno } from "@/lib/envios";
-import { completarSemana, erroPlano, resumoDia, type DiaPlano } from "@/lib/treino";
+import { completarSemana, erroPlano, linkDoAluno, mensagemEnvioAluno, resumoDia, type DiaPlano } from "@/lib/treino";
 
 export const Route = createFileRoute("/alunos/$id/")({
   head: () => ({
@@ -96,6 +96,26 @@ function TelaAluno() {
     }
   }
 
+  async function mandarPeloApp() {
+    if (envioEmCurso.current) return;
+    const aviso = erroPlano(plano);
+    setErro(aviso);
+    if (aviso) return;
+    envioEmCurso.current = true;
+    setEnviando(true);
+    try {
+      await enviar({ data: { id, semana: data?.semana, tema, plano: plano.map((d) => ({ ...d, tempo: d.tempo ?? "" })) } });
+      toast.success("Treino enviado para o app do aluno.");
+      qc.invalidateQueries({ queryKey: ["aluno", id] });
+    } catch { toast.error("Não deu pra enviar. Tente de novo."); }
+    finally { envioEmCurso.current = false; setEnviando(false); }
+  }
+
+  async function copiarLink() {
+    try { await navigator.clipboard.writeText(linkDoAluno(aluno.token)); toast.success("Link copiado."); }
+    catch { toast.error("Não deu pra copiar o link."); }
+  }
+
   return (
     <main className="mx-auto max-w-md">
       <TopoPagina voltar={<BotaoVoltar to="/alunos" />} titulo={aluno.nome.toUpperCase()} subtitulo={`${aluno.whatsapp}${aluno.objetivo ? ` - Objetivo: ${aluno.objetivo}` : ""}`} />
@@ -149,6 +169,8 @@ function TelaAluno() {
                     <span className="inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-xs font-bold text-success-foreground"><CheckCircle2 className="h-4 w-4" /> CONCLUÍDO</span>
                   </div>
                   <p className="mt-1 text-sm text-paper-muted">{new Date(f.created_at).toLocaleString("pt-BR")}</p>
+                  {f.onde_acertei ? <p className="mt-2"><b>Onde eu acertei:</b> {f.onde_acertei}</p> : null}
+                  {f.onde_errei ? <p className="mt-1"><b>Onde eu errei:</b> {f.onde_errei}</p> : null}
                   <p className="mt-2 font-semibold">{f.km.replace(".", ",")} km - {f.tempo}{f.pace ? ` - ${f.pace} /km` : ""}</p>
                   {f.foto ? <img src={f.foto} alt={`Foto do treino de ${f.dia}`} className="mt-3 w-full rounded-xl" loading="lazy" /> : <p className="mt-2 text-sm text-paper-muted">Sem foto.</p>}
                 </div>
@@ -158,10 +180,12 @@ function TelaAluno() {
           })}
         </section>
         <Button asChild variant="whatsapp" size="xl" className="min-h-16 h-auto whitespace-normal px-4 py-4 text-center">
-          <a href={linkAluno(aluno.whatsapp, `Oi, ${aluno.nome}! Seu treino da semana chegou! Abra seu treino e registre o que fez:`)} target="_blank" rel="noopener noreferrer" onClick={mandar} aria-disabled={enviando}>
-            <Send className="h-6 w-6" /> {enviando ? "SALVANDO..." : "ENVIAR PELO WHATSAPP"}
+          <a href={linkAluno(aluno.whatsapp, mensagemEnvioAluno(aluno.nome, linkDoAluno(aluno.token), plano, feitos))} target="_blank" rel="noopener noreferrer" onClick={mandar} aria-disabled={enviando}>
+            <Send className="h-6 w-6" /> {enviando ? "SALVANDO..." : "MANDAR PELO WHATSAPP"}
           </a>
         </Button>
+        <Button type="button" variant="hero" size="xl" className="h-auto min-h-16 w-full whitespace-normal" onClick={mandarPeloApp} disabled={enviando}><Smartphone className="h-6 w-6" /> MANDAR PELO APP</Button>
+        <Button type="button" variant="outline" size="xl" className="mb-8 h-auto min-h-16 w-full whitespace-normal" onClick={copiarLink}><Copy className="h-6 w-6" /> COPIAR LINK</Button>
       </div>
     </main>
   );

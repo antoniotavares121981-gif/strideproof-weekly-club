@@ -50,6 +50,27 @@ export type Database = {
         }
         Relationships: []
       }
+      professor: {
+        Row: {
+          id: number
+          nome: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          id?: number
+          nome?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Update: {
+          id?: number
+          nome?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
       semanas_aluno: {
         Row: {
           aluno_id: string
@@ -100,6 +121,8 @@ export type Database = {
           id: string
           km: string
           liberar_em: string | null
+          onde_acertei: string
+          onde_errei: string
           pace: string
           revisado_em: string | null
           semana: string
@@ -116,6 +139,8 @@ export type Database = {
           id?: string
           km: string
           liberar_em?: string | null
+          onde_acertei?: string
+          onde_errei?: string
           pace?: string
           revisado_em?: string | null
           semana: string
@@ -132,6 +157,8 @@ export type Database = {
           id?: string
           km?: string
           liberar_em?: string | null
+          onde_acertei?: string
+          onde_errei?: string
           pace?: string
           revisado_em?: string | null
           semana?: string

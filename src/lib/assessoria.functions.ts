@@ -22,6 +22,20 @@ const escolhaSemana = { semana: semanaSchema.optional() };
 
 // ---------- Professor ----------
 
+export const verProfessor = createServerFn({ method: "GET" }).handler(async () => {
+  const { data, error } = await (await db()).from("professor").select("nome, whatsapp").eq("id", 1).maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ?? { nome: "", whatsapp: "" };
+});
+
+export const salvarProfessor = createServerFn({ method: "POST" })
+  .validator((i: unknown) => z.object({ nome: z.string().trim().min(1).max(60), whatsapp: z.string().trim().min(10).max(20) }).parse(i))
+  .handler(async ({ data }) => {
+    const { error } = await (await db()).from("professor").upsert({ id: 1, ...data, updated_at: new Date().toISOString() });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const listarAlunos = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await (await db()).from("alunos").select("id, nome, whatsapp, objetivo, enviado_em").order("nome");
   if (error) throw new Error(error.message);
@@ -111,7 +125,7 @@ export const treinoDoAluno = createServerFn({ method: "GET" })
     if (es) throw new Error(es.message);
     const { data: h, error: eh } = await sb.from("semanas_aluno").select("semana, tema").eq("aluno_id", a.id).not("plano_enviado", "is", null).order("semana", { ascending: false });
     if (eh) throw new Error(eh.message);
-    const { data: f, error: ef } = await sb.from("treinos_feitos").select("id, dia_index, dia, km, tempo, pace, created_at, avaliacao, semana, revisado_em, liberar_em, envio_cancelado").eq("aluno_id", a.id).eq("semana", semana).order("created_at", { ascending: false });
+    const { data: f, error: ef } = await sb.from("treinos_feitos").select("id, dia_index, dia, km, tempo, pace, created_at, avaliacao, semana, revisado_em, liberar_em, envio_cancelado, onde_errei, onde_acertei").eq("aluno_id", a.id).eq("semana", semana).order("created_at", { ascending: false });
     if (ef) throw new Error(ef.message);
     // Never serialize a held evaluation to the student's browser.
     const feitos = (f ?? []).map((x) => ({ ...x, avaliacao: avaliacaoLiberada(x) ? x.avaliacao : null }));
@@ -129,6 +143,8 @@ export const enviarFeito = createServerFn({ method: "POST" })
         tempo: z.string().trim().min(1).max(10),
         pace: z.string().trim().max(10),
         foto: z.string().startsWith("data:image/").max(1_500_000).nullable(),
+        onde_errei: z.string().trim().max(1000).default(""),
+        onde_acertei: z.string().trim().max(1000).default(""),
       })
       .parse(i),
   )
@@ -155,7 +171,7 @@ export const enviarFeito = createServerFn({ method: "POST" })
     };
     // Uma gravação disponibiliza o treino e a mesma avaliação nos dois lados.
     const { error } = await sb.from("treinos_feitos").insert({
-      aluno_id: a.id, semana, dia_index: data.dia_index, dia: diaPlano.dia, km: data.km, tempo: data.tempo, pace: data.pace, foto: data.foto,
+      aluno_id: a.id, semana, dia_index: data.dia_index, dia: diaPlano.dia, km: data.km, tempo: data.tempo, pace: data.pace, foto: data.foto, onde_errei: data.onde_errei, onde_acertei: data.onde_acertei,
       avaliacao: avaliacao as never,
     });
     if (error) throw new Error(error.message);

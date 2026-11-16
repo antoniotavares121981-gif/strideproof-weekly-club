@@ -5,6 +5,7 @@ import hermes from "@/assets/hermes.jpg";
 import { Button } from "@/components/ui/button";
 import { LINK_PROFESSOR, PROFESSOR_PADRAO } from "@/lib/envios";
 import { Alunos } from "./alunos.index";
+import { CadastroProfessor } from "@/components/CadastroProfessor";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +25,7 @@ function Inicio() {
   return (
     <div className="mx-auto max-w-md space-y-5">
       <div className="px-5 pt-6"><Button asChild variant="hero" size="xl" className="h-auto min-h-20 w-full whitespace-normal text-2xl"><Link to="/alunos"><CalendarDays /> 📅 VER TREINO DA SEMANA</Link></Button></div>
+      <div className="px-5"><CadastroProfessor /></div>
       <Alunos mostrarBotao={false} />
       <div className="space-y-5 px-5">
       <div className="flex items-center gap-4 rounded-2xl bg-secondary p-4">
